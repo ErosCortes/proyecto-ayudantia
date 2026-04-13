@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Ayudantías UCN</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
       --ucn-azul: #003057;
@@ -15,106 +13,55 @@
     }
   </style>
 </head>
-<body class="bg-[var(--ucn-gris)] font-sans">
+<body class="bg-[var(--ucn-gris)] font-sans flex">
 
-  <!-- Navbar -->
-  <header class="bg-[var(--ucn-azul)] text-white shadow-lg">
-    <nav class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <section class="flex items-center gap-3">
-        <img src="logo70azul.png" alt="UCN" class="h-20">
-        <h1 class="text-xl font-bold">Ayudantías UCN</h1>
-      </section>
+  <!-- Sidebar izquierda -->
+  <aside class="w-64 bg-[var(--ucn-azul)] text-white min-h-screen p-6 flex flex-col gap-6">
+    <h2 class="text-2xl font-bold">Acceso</h2>
 
-      <ul class="hidden md:flex gap-6">
-        <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Inicio</a></li>
-        <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Cursos</a></li>
-        <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Calendario</a></li>
-        <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Material</a></li>
-        <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Contacto</a></li>
-      </ul>
+    <button class="bg-[var(--ucn-celeste)] py-3 rounded-xl font-semibold hover:opacity-80">
+      Ingresar como Estudiante
+    </button>
 
-      <!-- Login Dropdown -->
-      <div class="relative">
-        <button onclick="toggleMenu()" class="bg-[var(--ucn-celeste)] px-4 py-2 rounded-xl font-semibold hover:opacity-80">
-          Iniciar sesión
-        </button>
-        <div id="loginMenu" class="hidden absolute right-0 mt-2 bg-white text-black rounded-xl shadow-lg w-56">
-          <button onclick="login('estudiante')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Estudiante</button>
-          <button onclick="login('profesor')" class="block w-full text-left px-4 py-2 hover:bg-gray-100">Profesor</button>
-        </div>
-      </div>
-    </nav>
-  </header>
+    <button class="bg-white text-[var(--ucn-azul)] py-3 rounded-xl font-semibold hover:opacity-80">
+      Ingresar como Profesor
+    </button>
 
-  <!-- Hero -->
-  <main>
-    <section class="bg-white py-16 text-center">
-      <h2 class="text-4xl md:text-5xl font-bold text-[var(--ucn-azul)]">
-        Portal de Ayudantías
-      </h2>
-      <p class="mt-4 text-gray-600 text-lg">
-        Encuentra horarios, materiales y apoyo académico en un solo lugar.
-      </p>
-      <button class="mt-6 bg-[var(--ucn-celeste)] text-white px-6 py-3 rounded-2xl text-lg shadow hover:scale-105 transition">
-        Ver ayudantías
-      </button>
-    </section>
+    <a href="encuesta.html" class="mt-4 bg-green-500 text-white py-3 text-center rounded-xl font-semibold hover:opacity-80">
+      Postular
+    </a>
+  </aside>
 
-    <!-- Cards -->
-    <section class="max-w-6xl mx-auto px-6 py-12 grid md:grid-cols-3 gap-6">
+  <!-- Contenido principal -->
+  <div class="flex-1">
 
-      <article class="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition">
-        <h3 class="text-xl font-bold text-[var(--ucn-azul)]">Cursos Disponibles</h3>
-        <p class="mt-2 text-gray-600">Revisa todas las ayudantías por asignatura.</p>
-      </article>
+    <!-- Navbar -->
+    <header class="bg-[var(--ucn-azul)] text-white shadow-lg">
+      <nav class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <section class="flex items-center gap-3">
+          <img src="logo70azul.png" alt="UCN" class="h-16">
+          <h1 class="text-xl font-bold">Ayudantías UCN</h1>
+        </section>
 
-      <article class="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition">
-        <h3 class="text-xl font-bold text-[var(--ucn-azul)]">Calendario</h3>
-        <p class="mt-2 text-gray-600">Consulta fechas y horarios actualizados.</p>
-      </article>
+        <ul class="hidden md:flex gap-6">
+          <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Inicio</a></li>
+          <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Cursos</a></li>
+          <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Calendario</a></li>
+          <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Material</a></li>
+          <li><a href="#" class="hover:text-[var(--ucn-celeste)]">Contacto</a></li>
+        </ul>
+      </nav>
+    </header>
 
-      <article class="bg-white p-6 rounded-2xl shadow hover:shadow-xl transition">
-        <h3 class="text-xl font-bold text-[var(--ucn-azul)]">Material de Apoyo</h3>
-        <p class="mt-2 text-gray-600">Accede a guías, PPTs y recursos.</p>
-      </article>
-
-    </section>
-
-    <!-- Nueva Sección: Postulación -->
-    <section class="max-w-4xl mx-auto px-6 pb-16">
-      <div class="bg-white p-8 rounded-2xl shadow">
-        <h2 class="text-2xl font-bold text-[var(--ucn-azul)] mb-4">Postula a Ayudantías</h2>
-        <p class="text-gray-600 mb-6">Completa el siguiente formulario para postular como ayudante.</p>
-
-        <form class="grid gap-4">
-          <input type="text" placeholder="Nombre completo" class="p-3 border rounded-xl">
-          <input type="email" placeholder="Correo institucional" class="p-3 border rounded-xl">
-          <input type="text" placeholder="Carrera" class="p-3 border rounded-xl">
-          <input type="text" placeholder="Asignatura a postular" class="p-3 border rounded-xl">
-          <button type="submit" class="bg-[var(--ucn-celeste)] text-white py-3 rounded-xl hover:opacity-80">
-            Enviar postulación
-          </button>
-        </form>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- Footer -->
-  <footer class="bg-[var(--ucn-azul)] text-white text-center py-6">
-    <p>© 2026 Universidad Católica del Norte - Portal de Ayudantías</p>
-  </footer>
-
-  <script>
-    function toggleMenu() {
-      document.getElementById('loginMenu').classList.toggle('hidden');
-    }
-
-    function login(tipo) {
-      alert('Login como ' + tipo + '. Se iniciará sesión con Google.');
-      // Aquí deberías integrar OAuth real
-    }
-  </script>
-
-</body>
+    <!-- Hero -->
+    <main>
+      <section class="bg-white py-16 text-center">
+        <h2 class="text-4xl md:text-5xl font-bold text-[var(--ucn-azul)]">
+          Portal de Ayudantías
+        </h2>
+        <p class="mt-4 text-gray-600 text-lg">
+          Encuentra horarios, materiales y apoyo académico en un solo lugar.
+        </p>
+        <button class="mt-6 bg-[var(--ucn-celeste)] text-white px-6 py-3 rounded-2xl text-lg shadow hover:scale-105 transition">
+          Ver ayudantías
 </html>
