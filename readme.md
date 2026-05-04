@@ -12,6 +12,9 @@
 ```bash
 cd backend
 
+# Version de python utilizada es: (para que lo tengan en consideracion)
+python version 3.14.4
+
 # Crear entorno virtual
 python -m venv venv
 
