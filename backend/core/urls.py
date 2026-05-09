@@ -23,4 +23,7 @@ urlpatterns = [
 
     # OAuth Google
     path('auth/', include('social_django.urls', namespace='social')),
+
+    # Rutas propias
+    path('users/', include('users.urls')),
 ]

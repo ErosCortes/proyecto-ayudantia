@@ -10,14 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 import os
-from dotenv import load_dotenv
-load_dotenv()
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+env = environ.Env()
 
+environ.Env.read_env(BASE_DIR / ".env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
@@ -28,7 +29,7 @@ SECRET_KEY = 'django-insecure-lr0fv*kx3h2!5_^s-x4&*9aj8jcv%99k4snz&-(o^7ywr&0x7g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
@@ -119,28 +120,59 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '877484633131-shkr2mqqorlspbolblda5kqool3s8kub.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'TU_CLIENT_SECRET'
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = env(
+    "SOCIAL_AUTH_GOOGLE_OAUTH2_KEY"
+)
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = env(
+    "SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET"
+)
 
 
-LOGIN_REDIRECT_URL = 'http://localhost:3000/'
+LOGIN_REDIRECT_URL = "/users/success/"
 LOGOUT_REDIRECT_URL = 'http://localhost:3000/'
 
+###################################ESTE ES EL ORIGINAL, LUEGO QUITAR DE COMENTARIOS Y BORRAR LA V2.0
+#SOCIAL_AUTH_PIPELINE = (
+    #'social_core.pipeline.social_auth.social_details',
+    #'social_core.pipeline.social_auth.social_uid',
+    #'social_core.pipeline.social_auth.auth_allowed',
+    #'social_core.pipeline.social_auth.social_user',
+    #'social_core.pipeline.user.get_username',
+    #'social_core.pipeline.user.create_user',
+
+    # LOGICA DEL PIPELINE PARA ROLES!!!!!! esto es el anterior, lo pondremos comentario
+    #para probar la version mockup, recordar borrar despues comentarios y la version mokup
+    #'users.pipeline.save_user_role',
+
+    #'social_core.pipeline.social_auth.associate_user',
+    #'social_core.pipeline.social_auth.load_extra_data',
+    #'social_core.pipeline.user.user_details',
+
+###########################################aqui comienza la versión 2 con pipeline MOCKUP: 
 SOCIAL_AUTH_PIPELINE = (
+
     'social_core.pipeline.social_auth.social_details',
+
     'social_core.pipeline.social_auth.social_uid',
+
     'social_core.pipeline.social_auth.auth_allowed',
+
     'social_core.pipeline.social_auth.social_user',
+
     'social_core.pipeline.user.get_username',
+
     'social_core.pipeline.user.create_user',
 
-    # LOGICA DEL PIPELINE PARA ROLES!!!!!!
-    'users.pipeline.save_user_role',
-
     'social_core.pipeline.social_auth.associate_user',
+
     'social_core.pipeline.social_auth.load_extra_data',
+
     'social_core.pipeline.user.user_details',
+
+    'users.pipeline.redirect_user',
 )
+#)
 
 
 
