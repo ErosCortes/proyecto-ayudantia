@@ -12,7 +12,8 @@ def oauth_success(request):
         return redirect("http://localhost:3000/teacher")
 
     # ESTUDIANTE
-    if email == "lucastrujillo01@alumnos.ucn.cl":
+    if email.endswith("@alumnos.ucn.cl"):
         return redirect("http://localhost:3000/student")
 
+    #cualquier otro correo
     return redirect("http://localhost:3000/")
