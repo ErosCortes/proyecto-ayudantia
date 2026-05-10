@@ -1,8 +1,15 @@
-import { applicants } from "../../data/mockData";
+import { useOutletContext }
+  from "react-router-dom";
 
 function Applicants() {
+
+  const { teacherApplicants } =
+    useOutletContext();
+
   const getStatusStyle = (status) => {
+
     switch (status) {
+
       case "Aceptado":
         return "bg-green-100 text-green-700";
 
@@ -55,7 +62,8 @@ function Applicants() {
 
           <tbody>
 
-            {applicants.map((applicant) => (
+            {teacherApplicants.map((applicant) => (
+
               <tr
                 key={applicant.id}
                 className="border-b"

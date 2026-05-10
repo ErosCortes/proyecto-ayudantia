@@ -1,6 +1,40 @@
 import { tutoringOffers } from "../../data/mockData";
+import { useOutletContext } from "react-router-dom";
 
 function Apply() {
+
+  const { applications, setApplications } =
+    useOutletContext();
+
+  const handleApply = (offer) => {
+
+    // Verifica si ya postuló
+    const alreadyApplied = applications.some(
+      (app) => app.subject === offer.subject
+    );
+
+    if (alreadyApplied) {
+      alert("Ya postulaste a esta ayudantía");
+      return;
+    }
+
+    // Nueva postulación
+    const newApplication = {
+      id: applications.length + 1,
+      subject: offer.subject,
+      status: "Pendiente",
+      date: new Date().toLocaleDateString(),
+    };
+
+    // Actualiza el estado
+    setApplications([
+      ...applications,
+      newApplication,
+    ]);
+
+    alert("Postulación enviada");
+  };
+
   return (
     <section>
 
@@ -15,6 +49,7 @@ function Apply() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
 
         {tutoringOffers.map((offer) => (
+
           <article
             key={offer.id}
             className="bg-white rounded-2xl shadow-md p-6"
@@ -37,6 +72,7 @@ function Apply() {
             </p>
 
             <button
+              onClick={() => handleApply(offer)}
               className="mt-6 bg-[#00AEEF] text-white px-5 py-3 rounded-xl hover:opacity-80 transition"
             >
               Postular

@@ -79,8 +79,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-
-
 ###########################################################
 #######ESTA PARTE ES DE LA BASE, LUEGO LA AJUSTAN!!########
 ###########################################################

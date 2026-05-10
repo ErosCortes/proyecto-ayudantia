@@ -1,8 +1,15 @@
 import Navbar from "../components/Navbar";
 import StudentSidebar from "../components/StudentSidebar";
 import { Outlet } from "react-router-dom";
+import { useState } from "react";
+import { studentApplications }
+  from "../data/mockData";
 
 function StudentDashboard() {
+
+  const [applications, setApplications] =
+    useState(studentApplications);
+
   return (
     <div className="bg-gray-100 min-h-screen">
 
@@ -13,10 +20,18 @@ function StudentDashboard() {
         <StudentSidebar />
 
         <main className="flex-1 p-6">
-          <Outlet />
+
+          <Outlet
+            context={{
+              applications,
+              setApplications,
+            }}
+          />
+
         </main>
 
       </div>
+
     </div>
   );
 }

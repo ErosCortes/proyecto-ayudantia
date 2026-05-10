@@ -1,3 +1,5 @@
+
+/*Es lo mismo que el otro navbar, pero redirige a las paginas de la UCN*/
 function Navbar() {
   return (
     <header className="bg-[#003057] text-white shadow-lg">
@@ -27,20 +29,20 @@ function Navbar() {
         {/* Menú desktop */}
         <ul className="hidden md:flex gap-6">
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Inicio
+            <a href="https://campusvirtual.ucn.cl/login/index.php" className="hover:text-[#00AEEF]">
+              Campus Virtual
             </a>
           </li>
 
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Perfil
+            <a href="https://portal.ucn.cl/academy/" className="hover:text-[#00AEEF]">
+              Mi Banner UCN
             </a>
           </li>
 
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Contacto
+            <a href="https://eic.ucn.cl/" className="hover:text-[#00AEEF]">
+              Escuela de Ingeniería
             </a>
           </li>
         </ul>

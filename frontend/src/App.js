@@ -12,6 +12,8 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import DashboardHomeTeacher from "./pages/teacher/DashboardHomeTeacher";
 import ManageTutorships from "./pages/teacher/ManageTutorships";
 import Applicants from "./pages/teacher/Applicants";
+import TutorshipDetail
+  from "./pages/teacher/TutorshipDetails";
 import TeacherProfile from "./pages/teacher/TeacherProfile";
 
 function App() {
@@ -58,9 +60,12 @@ function App() {
             path="profile"
             element={<TeacherProfile />}
           />
-
+          <Route
+            path="tutorship/:id"
+          element={<TutorshipDetail />}
+          />
         </Route>
-
+          
       </Routes>
 
     </BrowserRouter>
