@@ -4,7 +4,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 django.setup()
 
-from users.models import Course
+from courses.models import Course
 
 # Cursos basados en el mockData
 courses_data = [

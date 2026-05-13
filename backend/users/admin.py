@@ -1,29 +1,28 @@
 from django.contrib import admin
-from .models import Course, Tutorship, TutorshipHistory, UserProfile
+from .models import User, StudentProfile, TeacherProfile, AdminProfile
 
-@admin.register(Course)
-class CourseAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'created_at')
-    search_fields = ('code', 'name')
-    ordering = ('-created_at',)
 
-@admin.register(Tutorship)
-class TutorshipAdmin(admin.ModelAdmin):
-    list_display = ('course', 'teacher', 'student', 'status', 'created_at')
-    list_filter = ('status', 'created_at')
-    search_fields = ('course__name', 'teacher__email', 'student__email')
-    ordering = ('-created_at',)
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('email', 'nombre_completo', 'rut', 'is_staff')
+    search_fields = ('email', 'nombre_completo', 'rut')
+    ordering = ('nombre_completo',)
 
-@admin.register(TutorshipHistory)
-class TutorshipHistoryAdmin(admin.ModelAdmin):
-    list_display = ('tutorship', 'action', 'changed_by', 'timestamp')
-    list_filter = ('action', 'timestamp')
-    search_fields = ('tutorship__course__name', 'changed_by__email')
-    ordering = ('-timestamp',)
 
-@admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'role', 'created_at')
-    list_filter = ('role', 'created_at')
-    search_fields = ('user__email', 'role')
-    ordering = ('-created_at',)
+@admin.register(StudentProfile)
+class AlumnoProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'ppa', 'sanciones', 'situacion_academica')
+    list_filter = ('situacion_academica',)
+    search_fields = ('user__email', 'user__nombre_completo')
+
+
+@admin.register(TeacherProfile)
+class ProfesorProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'departamento')
+    search_fields = ('user__email', 'user__nombre_completo', 'departamento')
+
+
+@admin.register(AdminProfile)
+class AdminProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'cargo', 'facultad')
+    search_fields = ('user__email', 'user__nombre_completo')

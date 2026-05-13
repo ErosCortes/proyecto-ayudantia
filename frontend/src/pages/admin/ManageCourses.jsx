@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import API_ENDPOINTS from "../../config/api";
 
 function ManageCourses() {
   const [courses, setCourses] = useState([]);
@@ -6,9 +7,10 @@ function ManageCourses() {
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
-    code: "",
+    nombre: "",
+    codigo_curso: "",
     description: "",
+    metodo_seleccion: "INDIVIDUAL",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -19,7 +21,7 @@ function ManageCourses() {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/users/courses/", {
+      const response = await fetch(API_ENDPOINTS.courses, {
         method: "GET",
         credentials: "include",
         headers: {
@@ -54,14 +56,14 @@ function ManageCourses() {
     e.preventDefault();
     
     // Validar que los campos requeridos estén llenos
-    if (!formData.name || !formData.code) {
+    if (!formData.nombre || !formData.codigo_curso) {
       setError("El nombre y código del curso son requeridos");
       return;
     }
 
     try {
       setSubmitting(true);
-      const response = await fetch("http://localhost:8000/users/courses/", {
+      const response = await fetch(API_ENDPOINTS.courses, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -77,7 +79,7 @@ function ManageCourses() {
 
       const newCourse = await response.json();
       setCourses((prev) => [...prev, newCourse]);
-      setFormData({ name: "", code: "", description: "" });
+      setFormData({ nombre: "", codigo_curso: "", description: "", metodo_seleccion: "INDIVIDUAL" });
       setShowForm(false);
       setError(null);
     } catch (err) {
@@ -94,7 +96,7 @@ function ManageCourses() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/users/courses/${courseId}/`, {
+      const response = await fetch(`${API_ENDPOINTS.courses}${courseId}/`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -150,8 +152,8 @@ function ManageCourses() {
               </label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="nombre"
+                value={formData.nombre}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
                 placeholder="Ej: Cálculo I"
@@ -164,8 +166,8 @@ function ManageCourses() {
               </label>
               <input
                 type="text"
-                name="code"
-                value={formData.code}
+                name="codigo_curso"
+                value={formData.codigo_curso}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
                 placeholder="Ej: MAT101"
@@ -184,6 +186,21 @@ function ManageCourses() {
                 placeholder="Descripción del curso"
                 rows="4"
               />
+            </div>
+
+            <div>
+              <label className="block text-gray-700 font-semibold mb-2">
+                Método de Selección
+              </label>
+              <select
+                name="metodo_seleccion"
+                value={formData.metodo_seleccion}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
+              >
+                <option value="INDIVIDUAL">Cada profesor elige su propio ayudante</option>
+                <option value="COORDINADOR">Un profesor coordina todos los paralelos</option>
+              </select>
             </div>
 
             <button
@@ -213,10 +230,13 @@ function ManageCourses() {
               className="border-2 border-[#004b87] rounded-lg p-4 hover:shadow-lg transition"
             >
               <h3 className="text-lg font-bold text-[#003057] mb-2">
-                {course.name}
+                {course.nombre}
               </h3>
               <p className="text-sm text-gray-600 mb-2">
-                <strong>Código:</strong> {course.code}
+                <strong>Código:</strong> {course.codigo_curso}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+                <strong>Método:</strong> {course.metodo_seleccion === 'INDIVIDUAL' ? 'Individual' : 'Coordinador'}
               </p>
               <p className="text-sm text-gray-600 mb-4">
                 <strong>Descripción:</strong> {course.description || "-"}

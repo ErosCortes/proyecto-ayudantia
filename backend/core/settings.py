@@ -44,8 +44,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'social_django',
+    # Apps propias
     'users',
+    'courses',
+    'applications',
+    'history',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

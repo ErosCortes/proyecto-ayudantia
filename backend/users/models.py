@@ -1,83 +1,63 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
-# Modelo para Cursos
-class Course(models.Model):
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=20, unique=True)
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = "Curso"
-        verbose_name_plural = "Cursos"
-    
+#Usuario
+class User(AbstractUser):
+    rut = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    correo_institucional = models.EmailField(unique=True, null=True, blank=True)
+    nombre_completo = models.CharField(max_length=150, blank=True)
+
     def __str__(self):
-        return f"{self.code} - {self.name}"
+        return f"{self.nombre_completo} ({self.email})"
 
+    @property
+    def es_alumno(self):
+        return hasattr(self, 'alumno_profile')
 
-# Modelo para Ayudantías
-class Tutorship(models.Model):
-    STATUS_CHOICES = [
-        ('ACTIVE', 'Activa'),
-        ('COMPLETED', 'Completada'),
-        ('CANCELLED', 'Cancelada'),
+    @property
+    def es_profesor(self):
+        return hasattr(self, 'profesor_profile')
+
+    @property
+    def es_admin(self):
+        return hasattr(self, 'admin_profile') or self.is_staff
+
+    
+#Alumno
+class StudentProfile(models.Model):
+    SITUACION_CHOICES = [
+        ('REGULAR', 'Regular'),
+        ('CONDICIONAL', 'Condicional'),
+        ('SUSPENDIDO', 'Suspendido'),
     ]
-    
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="tutorships")
-    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tutorships_created", null=True)
-    student = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="tutorships_assigned", null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ACTIVE')
-    description = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = "Ayudantía"
-        verbose_name_plural = "Ayudantías"
-    
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name='alumno_profile')
+    ppa = models.DecimalField(max_digits=4, decimal_places=2, default=0.0)
+    sanciones = models.IntegerField(default=0)
+    situacion_academica = models.CharField(max_length=20,
+                                           choices=SITUACION_CHOICES,
+                                           default='REGULAR')
+
     def __str__(self):
-        return f"Ayudantía: {self.course.code} - {self.status}"
-
-
-# Modelo para Historial de Ayudantes
-class TutorshipHistory(models.Model):
-    tutorship = models.ForeignKey(Tutorship, on_delete=models.CASCADE, related_name="history")
-    action = models.CharField(max_length=50)  # CREATED, UPDATED, COMPLETED, CANCELLED
-    changed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    description = models.TextField(blank=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
+        return f"Alumno: {self.user.nombre_completo}"
     
-    class Meta:
-        verbose_name = "Historial de Ayudantía"
-        verbose_name_plural = "Historial de Ayudantías"
-        ordering = ['-timestamp']
-    
+
+#Profesor 
+class TeacherProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name='profesor_profile')
+    departamento = models.CharField(max_length=100, blank=True)
+
     def __str__(self):
-        return f"Historial: {self.tutorship} - {self.action}"
+        return f"Profesor: {self.user.nombre_completo}"
 
+#Admin 
+class AdminProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE,
+                                related_name='admin_profile')
+    cargo = models.CharField(max_length=100, blank=True)
+    facultad = models.CharField(max_length=100, blank=True)
 
-# Modelo para perfil de usuario
-class UserProfile(models.Model):
-    ROLE_CHOICES = [
-        ('STUDENT', 'Estudiante'),
-        ('TEACHER', 'Profesor'),
-        ('ADMIN', 'Administrador'),
-    ]
-    
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='STUDENT')
-    phone = models.CharField(max_length=20, blank=True)
-    bio = models.TextField(blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    
-    class Meta:
-        verbose_name = "Perfil de Usuario"
-        verbose_name_plural = "Perfiles de Usuarios"
-    
     def __str__(self):
-        return f"Perfil de {self.user.email} - {self.role}"
+        return f"Admin: {self.user.nombre_completo}"
