@@ -47,6 +47,31 @@ function StudentSidebar() {
             </Link>
           </li>
 
+          <li>
+          <button
+            onClick={() => {
+
+              const confirmLogout = window.confirm(
+                "¿Estás seguro de cerrar sesión?"
+              );
+
+              if (confirmLogout) {
+                localStorage.removeItem("userEmail");
+                window.location.href = "/";
+              }
+
+            }}
+
+            className="block w-full text-left bg-red-500 px-4 py-3 rounded-xl hover:bg-red-600 transition text-white flex items-center gap-3"
+          >
+            <img
+              src="/poweroff.png"
+              alt="LogOut"
+              className="w-7 h-7"
+            />
+            Cerrar Sesión
+          </button>
+          </li>
         </ul>
       </nav>
     </aside>

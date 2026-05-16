@@ -1,3 +1,4 @@
+
 function Navbar() {
   return (
     <header className="bg-[#003057] text-white shadow-lg">
@@ -18,32 +19,33 @@ function Navbar() {
             />
           </a>
 
-          <h1 className="text-lg md:text-xl font-bold">
-            Ayudantías UCN
-          </h1>
+          <h1 className="text-lg md:text-xl font-bold text-right w-full">
+          Ayudantías UCN
+        </h1>
 
         </section>
 
         {/* Menú desktop */}
         <ul className="hidden md:flex gap-6">
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Inicio
+            <a href="https://campusvirtual.ucn.cl/login/index.php" className="hover:text-[#00AEEF]">
+              Campus Virtual
             </a>
           </li>
 
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Perfil
+            <a href="https://portal.ucn.cl/academy/" className="hover:text-[#00AEEF]">
+              Mi Banner UCN
             </a>
           </li>
 
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Contacto
+            <a href="https://eic.ucn.cl/" className="hover:text-[#00AEEF]">
+              Escuela de Ingeniería
             </a>
           </li>
         </ul>
+
 
       </nav>
     </header>

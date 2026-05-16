@@ -14,28 +14,35 @@ function Apply() {
     );
 
     if (alreadyApplied) {
+
       alert("Ya postulaste a esta ayudantía");
       return;
+
     }
 
-    // Nueva postulación
+    // Nueva postulación mock
     const newApplication = {
+
       id: applications.length + 1,
+      student: "Lucas Trujillo",
       subject: offer.subject,
       status: "Pendiente",
       date: new Date().toLocaleDateString(),
-    };
 
-    // Actualiza el estado
+};
+
+    // Actualiza estado
     setApplications([
       ...applications,
       newApplication,
     ]);
 
     alert("Postulación enviada");
+
   };
 
   return (
+
     <section>
 
       <h2 className="text-4xl font-bold text-[#003057]">
@@ -46,7 +53,7 @@ function Apply() {
         Revisa y postula a ayudantías abiertas.
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+      <div className="grid grid-cols-1 gap-6 mt-10">
 
         {tutoringOffers.map((offer) => (
 
@@ -79,11 +86,13 @@ function Apply() {
             </button>
 
           </article>
+
         ))}
 
       </div>
 
     </section>
+
   );
 }
 

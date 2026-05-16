@@ -2,7 +2,7 @@ export const tutoringOffers = [
   {
     id: 1,
     subject: "Programación I",
-    professor: "Dr. Juan Pérez",
+    professor: "Eric Ross",
     slots: 2,
     requirements: "Nota mínima 5.0",
   },
@@ -10,7 +10,7 @@ export const tutoringOffers = [
   {
     id: 2,
     subject: "Bases de Datos",
-    professor: "Dra. María González",
+    professor: "Camilo Gonzales",
     slots: 1,
     requirements: "Haber aprobado la asignatura",
   },
@@ -18,19 +18,13 @@ export const tutoringOffers = [
   {
     id: 3,
     subject: "Cálculo II",
-    professor: "Dr. Carlos Muñoz",
+    professor: "Arturo Bernal",
     slots: 3,
     requirements: "Promedio sobre 5.5",
   },
 ];
 
 export const studentApplications = [
-  {
-    id: 1,
-    subject: "Programación I",
-    status: "Pendiente",
-    date: "05/05/2026",
-  },
 
   {
     id: 2,
@@ -51,7 +45,7 @@ export const teacherTutorships = [
   {
     id: 1,
     subject: "Programación I",
-    applicants: 12,
+    applicants: 1,
     slots: 2,
   },
 
@@ -66,7 +60,7 @@ export const teacherTutorships = [
 export const applicants = [
   {
     id: 1,
-    name: "Pedro Ramírez",
+    name: "Lucas Trujillo",
     subject: "Programación I",
     average: 5.8,
     status: "Pendiente",
@@ -74,7 +68,7 @@ export const applicants = [
 
   {
     id: 2,
-    name: "Camila Torres",
+    name: "Mauricio",
     subject: "Bases de Datos",
     average: 6.1,
     status: "Aceptado",
@@ -82,7 +76,7 @@ export const applicants = [
 
   {
     id: 3,
-    name: "Javier Soto",
+    name: "Eros Cortes",
     subject: "Programación I",
     average: 5.2,
     status: "Rechazado",

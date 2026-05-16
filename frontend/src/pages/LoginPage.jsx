@@ -1,6 +1,12 @@
 import Navbar from "../components/LoginNavbar";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleGoogleLogin = () => {
     window.location.href =
@@ -8,10 +14,21 @@ function LoginPage() {
   };
 
   const handleNormalLogin = (e) => {
-    e.preventDefault();
 
-    alert("Próximamente disponible");
-  };
+  e.preventDefault();
+
+  // Guardar usuario fake
+  localStorage.setItem("userEmail", email);
+
+  // STUDENT
+  if (email.endsWith("@alumnos.ucn.cl")) {
+    navigate("/student");
+    return;
+  }
+
+  // TEACHER
+  navigate("/teacher");
+};
 
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col md:flex-row font-sans">
@@ -73,6 +90,8 @@ function LoginPage() {
                 <input
                   type="email"
                   placeholder="correo@universidad.cl"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
                 />
 
@@ -87,6 +106,8 @@ function LoginPage() {
                 <input
                   type="password"
                   placeholder="********"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#00AEEF]"
                 />
 

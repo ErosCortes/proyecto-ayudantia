@@ -1,15 +1,11 @@
-import { teacherTutorships }
-  from "../../data/mockData";
-
-import { useNavigate }
-  from "react-router-dom";
+import { teacherTutorships } from "../../data/mockData";
+import { useNavigate } from "react-router-dom";
 
 function ManageTutorships() {
 
   const navigate = useNavigate();
 
   const handleManage = (id) => {
-
     navigate(`/teacher/tutorship/${id}`);
   };
 
@@ -24,7 +20,8 @@ function ManageTutorships() {
         Administra tus ayudantías activas.
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+      {/* SOLO CAMBIO AQUÍ */}
+      <div className="grid grid-cols-1 gap-6 mt-10">
 
         {teacherTutorships.map((tutorship) => (
 
@@ -38,27 +35,24 @@ function ManageTutorships() {
             </h3>
 
             <p className="mt-3 text-gray-700">
-              <strong>Postulantes:</strong>
-              {" "}
+              <strong>Postulantes:</strong>{" "}
               {tutorship.applicants}
             </p>
 
             <p className="mt-2 text-gray-700">
-              <strong>Cupos:</strong>
-              {" "}
+              <strong>Cupos:</strong>{" "}
               {tutorship.slots}
             </p>
 
             <button
-              onClick={() =>
-                handleManage(tutorship.id)
-              }
+              onClick={() => handleManage(tutorship.id)}
               className="mt-6 bg-[#00AEEF] text-white px-5 py-3 rounded-xl hover:opacity-80 transition"
             >
               Gestionar
             </button>
 
           </article>
+
         ))}
 
       </div>

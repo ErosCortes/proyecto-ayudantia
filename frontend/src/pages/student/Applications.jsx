@@ -2,8 +2,18 @@ import { studentApplications } from "../../data/mockData";
 import { useOutletContext } from "react-router-dom";
 
 function Applications() {
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case "Aceptada":
+        return "bg-green-100 text-green-700";
 
-  const { applications } = useOutletContext();
+      case "Rechazada":
+        return "bg-red-100 text-red-700";
+
+      default:
+        return "bg-yellow-100 text-yellow-700";
+    }
+  };
 
   return (
     <section>
@@ -13,32 +23,65 @@ function Applications() {
       </h2>
 
       <p className="mt-4 text-gray-600">
-        Revisa el estado de tus postulaciones.
+        Estado de tus postulaciones realizadas.
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+      <div className="overflow-x-auto mt-10">
 
-        {applications.map((application) => (
+        <table className="w-full bg-white rounded-2xl shadow-md overflow-hidden">
 
-          <article
-            key={application.id}
-            className="bg-white rounded-2xl shadow-md p-6"
-          >
+          <thead className="bg-[#003057] text-white">
 
-            <h3 className="text-2xl font-bold text-[#003057]">
-              {application.subject}
-            </h3>
+            <tr>
 
-            <p className="mt-3 text-gray-700">
-              <strong>Estado:</strong> {application.status}
-            </p>
+              <th className="text-left px-6 py-4">
+                Asignatura
+              </th>
 
-            <p className="mt-2 text-gray-700">
-              <strong>Fecha:</strong> {application.date}
-            </p>
+              <th className="text-left px-6 py-4">
+                Estado
+              </th>
 
-          </article>
-        ))}
+              <th className="text-left px-6 py-4">
+                Fecha
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {studentApplications.map((application) => (
+              <tr
+                key={application.id}
+                className="border-b"
+              >
+
+                <td className="px-6 py-4">
+                  {application.subject}
+                </td>
+
+                <td className="px-6 py-4">
+
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusStyle(application.status)}`}
+                  >
+                    {application.status}
+                  </span>
+
+                </td>
+
+                <td className="px-6 py-4">
+                  {application.date}
+                </td>
+
+              </tr>
+            ))}
+
+          </tbody>
+
+        </table>
 
       </div>
 
