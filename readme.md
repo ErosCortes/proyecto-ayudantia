@@ -96,16 +96,16 @@ Dominios válidos en producción:
 ---
 
 ## 📁 Estructura del proyecto
-backend/
-core/          → configuración Django
-users/         → usuarios y perfiles
-courses/       → cursos y secciones
-applications/  → postulaciones
-history/       → historial de ayudantías
-seed.py        → datos de prueba
-frontend/
-src/
-pages/       → páginas por rol (admin, student, teacher)
-components/  → componentes reutilizables
-config/      → configuración de la API
-data/        → datos mock temporales
+-**backend/**
+-core/          → configuración Django
+-users/         → usuarios y perfiles
+-courses/       → cursos y secciones
+-applications/  → postulaciones
+-history/       → historial de ayudantías
+-seed.py        → datos de prueba
+-**frontend/*+
+-src/
+-pages/       → páginas por rol (admin, student, teacher)
+-components/  → componentes reutilizables
+-config/      → configuración de la API
+-data/        → datos mock temporales
