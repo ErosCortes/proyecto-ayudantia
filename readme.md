@@ -80,8 +80,8 @@ http://localhost:8000/auth/complete/google-oauth2/
 Para probar el sistema sin correos institucionales, agregar en `users/pipeline.py`:
 
 ```python
-# ── CORREOS DE PRUEBA (eliminar antes de entregar) ── #A mi no me dejo crear un correo el google, por el numero de telefono
-if email == "tucorreo@gmail.com": #solo cmabien el correo en el if y esta listo 
+# ── CORREOS DE PRUEBA (eliminar antes de entregar) ── #A mi no me dejo crear un correo en google, por el numero de telefono
+if email == "tucorreo@gmail.com": #solo cambien el correo en el if y esta listo 
     AdminProfile.objects.get_or_create(user=user, defaults={'cargo': '', 'facultad': ''})
     user.is_staff = True
     user.save()
