@@ -1,9 +1,11 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from users.permissions import EsAlumno, EsProfesor
 from rest_framework.permissions import IsAuthenticated
 from .models import Postulation
 from .serializers import PostulationSerializer
+from history.models import AssistantHistory
 
 
 class PostulationViewSet(viewsets.ModelViewSet):
@@ -11,16 +13,24 @@ class PostulationViewSet(viewsets.ModelViewSet):
     serializer_class = PostulationSerializer
     permission_classes = [IsAuthenticated]
 
+    def get_permissions(self):
+        """Permisos distintos según la acción"""
+        if self.action in ['apply', 'my_applications']:
+            return [EsAlumno()]
+        if self.action == 'update_status':
+            return [EsProfesor()]
+        return [IsAuthenticated()]
+
     @action(detail=False, methods=['get'])
     def my_applications(self, request):
-        """Obtiene postulaciones del usuario actual"""
+        """Postulaciones del alumno actual"""
         postulations = Postulation.objects.filter(id_alumno=request.user)
         serializer = self.get_serializer(postulations, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'])
     def apply(self, request):
-        """Crea una nueva postulación"""
+        """Alumno postula a una sección"""
         try:
             postulation = Postulation.objects.create(
                 id_alumno=request.user,
@@ -34,10 +44,24 @@ class PostulationViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['patch'])
     def update_status(self, request, pk=None):
-        """Actualiza el estado de una postulación"""
+        """Profesor acepta o rechaza una postulación"""
         postulation = self.get_object()
-        postulation.estado = request.data.get('estado')
+        nuevo_estado = request.data.get('estado')
+
+        postulation.estado = nuevo_estado
         postulation.comentario = request.data.get('comentario', '')
         postulation.save()
+
+        # Si se acepta, crear historial automáticamente
+        if nuevo_estado == 'ACEPTADA':
+            AssistantHistory.objects.get_or_create(
+                id_alumno=postulation.id_alumno,
+                id_curso=postulation.id_curso,
+                defaults={
+                    'semestre': postulation.id_curso.semestre,
+                    'estado_final': 'COMPLETADA'
+                }
+            )
+
         serializer = self.get_serializer(postulation)
         return Response(serializer.data)

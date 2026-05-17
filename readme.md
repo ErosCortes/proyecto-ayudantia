@@ -11,10 +11,6 @@
 
 ```bash
 cd backend
-
-# Version de python utilizada es: (para que lo tengan en consideracion)
-python version 3.14.4
-
 # Crear entorno virtual
 python -m venv venv
 
@@ -27,6 +23,9 @@ pip install -r requirements.txt
 
 # Migraciones
 python manage.py migrate
+
+# Poblar base de datos con datos de prueba
+python seed.py
 
 # Ejecutar servidor
 python manage.py runserver
@@ -52,14 +51,14 @@ npm start
 
 Crear archivo `.env` en `backend/`:
 
-```
 DB_NAME=ayudantias_db
 DB_USER=postgres
-DB_PASSWORD=tu_password  (Admin2307 le puse esa al azars, por si crean una bd en sus pc para tener la misma password los 3)
+DB_PASSWORD=Admin2307
 DB_HOST=localhost
 DB_PORT=5432
-```
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>   
 ---
 
 ## 🌐 OAuth Google
@@ -72,3 +71,41 @@ Redirect URI:
 ```
 http://localhost:8000/auth/complete/google-oauth2/
 ```
+
+
+---
+
+## 🧪 Usuarios de prueba
+
+Para probar el sistema sin correos institucionales, agregar en `users/pipeline.py`:
+
+```python
+# ── CORREOS DE PRUEBA (eliminar antes de entregar) ── #A mi no me dejo crear un correo el google, por el numero de telefono
+if email == "tucorreo@gmail.com": #solo cmabien el correo en el if y esta listo 
+    AdminProfile.objects.get_or_create(user=user, defaults={'cargo': '', 'facultad': ''})
+    user.is_staff = True
+    user.save()
+    return
+```
+
+Dominios válidos en producción:
+- `@alumnos.ucn.cl` → Alumno
+- `@ce.ucn.cl` → Profesor
+- `@ucn.cl` → Administrador
+
+---
+
+## 📁 Estructura del proyecto
+backend/
+core/          → configuración Django
+users/         → usuarios y perfiles
+courses/       → cursos y secciones
+applications/  → postulaciones
+history/       → historial de ayudantías
+seed.py        → datos de prueba
+frontend/
+src/
+pages/       → páginas por rol (admin, student, teacher)
+components/  → componentes reutilizables
+config/      → configuración de la API
+data/        → datos mock temporales

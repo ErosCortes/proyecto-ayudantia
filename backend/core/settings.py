@@ -71,6 +71,13 @@ CORS_ALLOWED_ORIGINS = [
 
 CORS_ALLOW_CREDENTIALS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+CSRF_COOKIE_HTTPONLY = False
+
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [
@@ -105,6 +112,16 @@ DATABASES = {
         'HOST': os.getenv('DB_HOST'),
         'PORT': os.getenv('DB_PORT'),
     }
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 
@@ -162,30 +179,19 @@ LOGOUT_REDIRECT_URL = 'http://localhost:3000/'
 
 ###########################################aqui comienza la versión 2 con pipeline MOCKUP: 
 SOCIAL_AUTH_PIPELINE = (
-
     'social_core.pipeline.social_auth.social_details',
-
     'social_core.pipeline.social_auth.social_uid',
-
     'social_core.pipeline.social_auth.auth_allowed',
-
     'social_core.pipeline.social_auth.social_user',
-
     'social_core.pipeline.user.get_username',
-
     'social_core.pipeline.user.create_user',
-
     'social_core.pipeline.social_auth.associate_user',
-
     'social_core.pipeline.social_auth.load_extra_data',
-
     'social_core.pipeline.user.user_details',
-
-    'users.pipeline.redirect_user',
+    'users.pipeline.asignar_perfil_por_correo',
+    'users.pipeline.redirect_por_rol',
 )
 #)
-
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
@@ -203,3 +209,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = []
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {}

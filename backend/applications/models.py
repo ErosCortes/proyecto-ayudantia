@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from django.conf import settings
 from courses.models import Section
 
 
@@ -10,7 +10,7 @@ class Postulation(models.Model):
         ('RECHAZADA', 'Rechazada'),
     ]
 
-    id_alumno = models.ForeignKey(User, on_delete=models.CASCADE,
+    id_alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                   related_name='postulaciones')
     id_curso = models.ForeignKey(Section, on_delete=models.CASCADE,
                                  related_name='postulaciones')

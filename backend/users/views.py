@@ -13,18 +13,17 @@ from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfil
 
 @login_required
 def oauth_success(request):
+    user = request.user
+    email = user.email.lower()
 
-    email = request.user.email.lower()
-
-    # PROFESOR
-    if email == "profesorucntest@gmail.com":
+    # Por perfil (funciona para correos de prueba y producción)
+    if hasattr(user, 'admin_profile') or user.is_staff:
+        return redirect("http://localhost:3000/admin")
+    elif hasattr(user, 'profesor_profile'):
         return redirect("http://localhost:3000/teacher")
-
-    # ESTUDIANTE
-    if email.endswith("@alumnos.ucn.cl"):
+    elif hasattr(user, 'alumno_profile'):
         return redirect("http://localhost:3000/student")
 
-    #cualquier otro correo
     return redirect("http://localhost:3000/")
 
 

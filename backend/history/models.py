@@ -1,5 +1,5 @@
 from django.db import models
-from users.models import User
+from django.conf import settings
 from courses.models import Section
 
 
@@ -10,13 +10,10 @@ class AssistantHistory(models.Model):
         ('CANCELADA', 'Cancelada'),
     ]
 
-    id_alumno = models.ForeignKey(User, on_delete=models.CASCADE,
-                                  related_name='historial')
-    id_curso = models.ForeignKey(Section, on_delete=models.CASCADE,
-                                 related_name='historial')
-    semestre = models.CharField(max_length=20)   # ej: "2025-1"
-    estado_final = models.CharField(max_length=20, choices=ESTADO_CHOICES,
-                                    default='COMPLETADA')
+    id_alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,related_name='historial')
+    id_curso = models.ForeignKey(Section, on_delete=models.CASCADE,related_name='historial')
+    semestre = models.CharField(max_length=20)
+    estado_final = models.CharField(max_length=20, choices=ESTADO_CHOICES,default='COMPLETADA')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

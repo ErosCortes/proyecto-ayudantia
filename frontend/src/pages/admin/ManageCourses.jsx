@@ -54,8 +54,7 @@ function ManageCourses() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validar que los campos requeridos estén llenos
+  
     if (!formData.nombre || !formData.codigo_curso) {
       setError("El nombre y código del curso son requeridos");
       return;
@@ -63,11 +62,18 @@ function ManageCourses() {
 
     try {
       setSubmitting(true);
+
+      const csrfToken = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('csrftoken='))
+        ?.split('=')[1];
+
       const response = await fetch(API_ENDPOINTS.courses, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,  // ← esto faltaba
         },
         body: JSON.stringify(formData),
       });
