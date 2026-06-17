@@ -19,6 +19,8 @@ class PostulationViewSet(viewsets.ModelViewSet):
             return [EsAlumno()]
         if self.action == 'update_status':
             return [EsProfesor()]
+        if self.action == 'pending':
+            return [EsProfesor()]
         return [IsAuthenticated()]
 
     @action(detail=False, methods=['get'])
@@ -42,32 +44,49 @@ class PostulationViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-@action(detail=True, methods=['patch'])
-def update_status(self, request, pk=None):
-    """Profesor acepta o rechaza una postulación"""
-    postulation = self.get_object()
-    nuevo_estado = request.data.get('estado')
+    @action(detail=True, methods=['patch'])
+    def update_status(self, request, pk=None):
+        """Profesor acepta o rechaza una postulación"""
+        postulation = self.get_object()
 
-    ESTADOS_VALIDOS = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA']
-    if nuevo_estado not in ESTADOS_VALIDOS:
-        return Response(
-            {'error': f'Estado inválido. Debe ser uno de: {ESTADOS_VALIDOS}'},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+        if postulation.id_curso.profesor != request.user:
+            return Response(
+                {'error': 'No eres el profesor de esta sección'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
-    postulation.estado = nuevo_estado
-    postulation.comentario = request.data.get('comentario', '')
-    postulation.save()
+        nuevo_estado = request.data.get('estado')
 
-    if nuevo_estado == 'ACEPTADA':
-        AssistantHistory.objects.get_or_create(
-            id_alumno=postulation.id_alumno,
-            id_curso=postulation.id_curso,
-            defaults={
-                'semestre': postulation.id_curso.semestre,
-                'estado_final': 'COMPLETADA'
-            }
-        )
+        ESTADOS_VALIDOS = ['PENDIENTE', 'ACEPTADA', 'RECHAZADA']
+        if nuevo_estado not in ESTADOS_VALIDOS:
+            return Response(
+                {'error': f'Estado inválido. Debe ser uno de: {ESTADOS_VALIDOS}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
-    serializer = self.get_serializer(postulation)
-    return Response(serializer.data)
+        postulation.estado = nuevo_estado
+        postulation.comentario = request.data.get('comentario', '')
+        postulation.save()
+
+        if nuevo_estado == 'ACEPTADA':
+            AssistantHistory.objects.get_or_create(
+                id_alumno=postulation.id_alumno,
+                id_curso=postulation.id_curso,
+                defaults={
+                    'semestre': postulation.id_curso.semestre,
+                    'estado_final': 'COMPLETADA'
+                }
+            )
+
+        serializer = self.get_serializer(postulation)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def pending(self, request):
+        """Postulaciones pendientes de las secciones del profesor"""
+        postulations = Postulation.objects.filter(
+            id_curso__profesor=request.user,
+            estado='PENDIENTE'
+        ).select_related('id_alumno', 'id_curso__course')
+        serializer = self.get_serializer(postulations, many=True)
+        return Response(serializer.data)

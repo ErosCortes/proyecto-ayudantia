@@ -74,19 +74,26 @@ class SectionViewSet(viewsets.ModelViewSet):
         sections = Section.objects.all()
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def my_sections(self, request):
+        sections = Section.objects.filter(profesor=request.user)
+        serializer = self.get_serializer(sections, many=True)
+        return Response(serializer.data)
     
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def sync_profesor_ucn(request):
     """Sincroniza las secciones de un profesor desde la API UCN"""
-    rut = request.data.get('rut')
+    rut_raw = request.data.get('rut', '')
+    rut_clean = rut_raw.replace('.', '').replace('-', '')
     periodo = request.data.get('periodo', '202520')
     
-    if not rut:
+    if not rut_raw:
         return Response({'error': 'RUT requerido'}, status=status.HTTP_400_BAD_REQUEST)
     
-    data = sync_profesor(rut, periodo)
+    data = sync_profesor(rut_clean, periodo)
     
     if data is None:
         return Response({'error': 'Profesor no encontrado o sin asignaturas'}, status=status.HTTP_404_NOT_FOUND)

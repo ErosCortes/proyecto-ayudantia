@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import apiClient from "../../config/apiClient";
 
 function TutorshipHistory() {
   const [tutorships, setTutorships] = useState([]);
@@ -12,13 +13,7 @@ function TutorshipHistory() {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:8000/users/tutorship-history/", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient("/history/my_history/");
 
       if (!response.ok) {
         throw new Error("Error al obtener el historial");

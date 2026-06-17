@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_ENDPOINTS from "../../config/api";
+import apiClient from "../../config/apiClient";
 
 function Applications() {
   const [applications, setApplications] = useState([]);
@@ -13,13 +13,7 @@ function Applications() {
   const fetchMyApplications = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_ENDPOINTS.myApplications, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient("/postulations/my_applications/");
 
       if (!response.ok) {
         throw new Error("Error al obtener postulaciones");

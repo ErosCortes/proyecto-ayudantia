@@ -24,8 +24,11 @@ pip install -r requirements.txt
 # Migraciones
 python manage.py migrate
 
-# Poblar base de datos con datos de prueba
+# Poblar base de datos con datos de prueba (para admin y usuarios random)
 python seed.py
+
+#  Crear la estudiante de prueba María (¡¡¡¡IMPORTANTE, SINO NO FUNCIONARA!!!!)
+python manage.py import_student
 
 # Ejecutar servidor
 python manage.py runserver
@@ -58,7 +61,10 @@ DB_HOST=localhost
 DB_PORT=5432
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>   
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
+UCN_API_PUCLARO=<el link de puclaro, solo copia el link hasta /api ya que el resto de la url lo maneja el codigo>
+UCN_API_LOSVILOS=<lo mismo pero con los vilos, hasta /api, ejemplo https://url.ucn.cl/puclaro/api>
+UCN_API_TOKEN=<el token que nos dieron>
 ---
 
 ## 🌐 OAuth Google

@@ -1,42 +1,20 @@
-from django.shortcuts import redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import logout as auth_logout
-from django.http import JsonResponse
-from django.views.decorators.http import require_http_methods
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import PermissionDenied
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+
 from .models import User, StudentProfile, TeacherProfile, AdminProfile
-from .serializers import UserSerializer, StudentProfileSerializer, TeacherProfileSerializer, AdminProfileSerializer
-
-
-@login_required
-def oauth_success(request):
-    user = request.user
-    email = user.email.lower()
-
-    # Por perfil (funciona para correos de prueba y producción)
-    if hasattr(user, 'admin_profile') or user.is_staff:
-        return redirect("http://localhost:3000/admin")
-    elif hasattr(user, 'profesor_profile'):
-        return redirect("http://localhost:3000/teacher")
-    elif hasattr(user, 'alumno_profile'):
-        return redirect("http://localhost:3000/student")
-
-    return redirect("http://localhost:3000/")
-
-
-@require_http_methods(["POST"])
-def logout_user(request):
-    """Cierra sesión del usuario y limpia OAuth"""
-    # Cerrar sesión normal de Django
-    auth_logout(request)
-    
-    return JsonResponse({
-        "message": "Sesión cerrada", 
-        "redirect": "http://localhost:3000/"
-    })
+from .serializers import (
+    UserSerializer, StudentProfileSerializer, TeacherProfileSerializer,
+    AdminProfileSerializer, RegisterSerializer, LoginSerializer
+)
+from .permissions import EsAdmin
+from external_services.services import get_alumnos, sync_profesor
+from courses.models import Section
+from courses.serializers import SectionSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -46,13 +24,11 @@ class UserViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def me(self, request):
-        """Obtiene el usuario actual autenticado"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def profile_type(self, request):
-        """Obtiene el tipo de perfil del usuario autenticado"""
         user = request.user
         profile_type = None
         profile_data = None
@@ -73,6 +49,50 @@ class UserViewSet(viewsets.ModelViewSet):
             'profile': profile_data
         })
 
+    @action(detail=False, methods=['post'], permission_classes=[EsAdmin])
+    def create_teacher(self, request):
+        rut_raw = request.data.get('rut', '').strip()
+        rut_clean = rut_raw.replace('.', '').replace('-', '')
+        nombre = request.data.get('nombre_completo', '')
+        password = request.data.get('password', 'profe1234')
+
+        if not rut_raw:
+            return Response({'error': 'RUT es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(rut=rut_raw).exists():
+            return Response({'error': 'El RUT ya está registrado'}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(
+            username=rut_raw,
+            rut=rut_raw,
+            password=password,
+            nombre_completo=nombre or f'Profesor {rut_raw}',
+            correo_institucional=request.data.get('correo_institucional', ''),
+            telefono=request.data.get('telefono', ''),
+            direccion=request.data.get('direccion', ''),
+        )
+        TeacherProfile.objects.create(user=user)
+
+        secciones_creadas = 0
+        error_sync = None
+        try:
+            data = sync_profesor(rut_raw)
+            if data and data.get('asignaturas'):
+                secciones_creadas = len(data['asignaturas'])
+        except Exception as e:
+            error_sync = str(e)
+            print(f"[create_teacher] Error sync profesor: {e}")
+
+        sections = Section.objects.filter(profesor=user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'profile': TeacherProfileSerializer(user.profesor_profile).data,
+            'sections': SectionSerializer(sections, many=True).data,
+            'password': password,
+            'sync_secciones': secciones_creadas,
+            'error_sync': error_sync,
+        }, status=status.HTTP_201_CREATED)
+
 
 class StudentProfileViewSet(viewsets.ModelViewSet):
     queryset = StudentProfile.objects.all()
@@ -90,3 +110,92 @@ class AdminProfileViewSet(viewsets.ModelViewSet):
     queryset = AdminProfile.objects.all()
     serializer_class = AdminProfileSerializer
     permission_classes = [IsAuthenticated]
+
+
+class RegisterView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = RegisterSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        rut = serializer.validated_data['rut']
+        password = serializer.validated_data['password']
+
+        alumnos = get_alumnos()
+        print(f"[DEBUG] Alumnos recibidos: {len(alumnos)}")
+        alumno_data = None
+        for a in alumnos:
+            print(f"[DEBUG] Comparando: '{a.get('rut')}' == '{rut}'")
+            if a.get('rut') == rut:
+                alumno_data = a
+                break
+
+        if not alumno_data:
+            raise PermissionDenied(
+                "Acceso denegado debido a que no perteneces a la Universidad"
+            )
+
+        user = User.objects.create_user(
+            username=rut,
+            rut=rut,
+            password=password,
+            nombre_completo=alumno_data.get('nombre', ''),
+            correo_institucional=alumno_data.get('correo', ''),
+            telefono=alumno_data.get('telefono', ''),
+            direccion=alumno_data.get('direccion', ''),
+        )
+
+        carrera = alumno_data.get('carrera', {})
+        StudentProfile.objects.create(
+            user=user,
+            ppa=alumno_data.get('ppa'),
+            alerta_academica=alumno_data.get('alertaAcademica', False),
+            carrera_codigo=carrera.get('codigo', ''),
+            carrera_nombre=carrera.get('nombre', ''),
+        )
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }, status=status.HTTP_201_CREATED)
+
+
+class LoginView(generics.GenericAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = LoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        rut = serializer.validated_data['rut']
+        password = serializer.validated_data['password']
+
+        user = authenticate(username=rut, password=password)
+
+        if user is None:
+            try:
+                user = User.objects.get(rut=rut)
+            except User.DoesNotExist:
+                return Response(
+                    {'error': 'RUT o contraseña incorrectos'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+            if not user.check_password(password):
+                return Response(
+                    {'error': 'RUT o contraseña incorrectos'},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            'user': UserSerializer(user).data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        })

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_ENDPOINTS from "../../config/api";
+import apiClient from "../../config/apiClient";
 
 function StudentTutorshipHistory() {
   const [history, setHistory] = useState([]);
@@ -13,13 +13,7 @@ function StudentTutorshipHistory() {
   const fetchHistory = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_ENDPOINTS.myHistory, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient("/history/my_history/");
 
       if (!response.ok) {
         throw new Error("Error al obtener el historial");

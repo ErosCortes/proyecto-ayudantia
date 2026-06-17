@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 import LoginPage from "./pages/LoginPage";
 
@@ -18,73 +19,91 @@ import TeacherProfile from "./pages/teacher/TeacherProfile";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminHome from "./pages/admin/AdminHome";
 import ManageCourses from "./pages/admin/ManageCourses";
+import ManageUsers from "./pages/admin/ManageUsers";
+
+function ProtectedRoute({ children, allowedRole }) {
+  const { isAuthenticated, profileType, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <p className="text-xl text-gray-600">Cargando...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (allowedRole && profileType !== allowedRole) {
+    const redirectMap = { admin: "/admin", teacher: "/teacher", student: "/student" };
+    return <Navigate to={redirectMap[profileType] || "/"} replace />;
+  }
+
+  return children;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Login */}
+      <Route path="/" element={<LoginPage />} />
+
+      {/* ESTUDIANTE */}
+      <Route
+        path="/student"
+        element={
+          <ProtectedRoute allowedRole="student">
+            <StudentDashboard />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<DashboardHome />} />
+        <Route path="apply" element={<Apply />} />
+        <Route path="applications" element={<Applications />} />
+        <Route path="tutorship-history" element={<StudentTutorshipHistory />} />
+        <Route path="profile" element={<Profile />} />
+      </Route>
+
+      {/* PROFESOR */}
+      <Route
+        path="/teacher"
+        element={
+          <ProtectedRoute allowedRole="teacher">
+            <TeacherDashboard />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<DashboardHomeTeacher />} />
+        <Route path="manage" element={<ManageTutorships />} />
+        <Route path="applicants" element={<Applicants />} />
+        <Route path="profile" element={<TeacherProfile />} />
+      </Route>
+
+      {/* ADMINISTRADOR */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute allowedRole="admin">
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AdminHome />} />
+        <Route path="courses" element={<ManageCourses />} />
+        <Route path="users" element={<ManageUsers />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-
-      <Routes>
-
-        {/* Login */}
-        <Route path="/" element={<LoginPage />} />
-
-        {/* ESTUDIANTE */}
-        <Route path="/student" element={<StudentDashboard />}>
-
-          <Route index element={<DashboardHome />} />
-
-          <Route path="apply" element={<Apply />} />
-
-          <Route
-            path="applications"
-            element={<Applications />}
-          />
-
-          <Route
-            path="tutorship-history"
-            element={<StudentTutorshipHistory />}
-          />
-
-          <Route path="profile" element={<Profile />} />
-
-        </Route>
-
-        {/* PROFESOR */}
-        <Route path="/teacher" element={<TeacherDashboard />}>
-
-          <Route index element={<DashboardHomeTeacher />} />
-
-          <Route
-            path="manage"
-            element={<ManageTutorships />}
-          />
-
-          <Route
-            path="applicants"
-            element={<Applicants />}
-          />
-
-          <Route
-            path="profile"
-            element={<TeacherProfile />}
-          />
-
-        </Route>
-
-        {/* ADMINISTRADOR */}
-        <Route path="/admin" element={<AdminDashboard />}>
-
-          <Route index element={<AdminHome />} />
-
-          <Route
-            path="courses"
-            element={<ManageCourses />}
-          />
-
-        </Route>
-
-      </Routes>
-
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

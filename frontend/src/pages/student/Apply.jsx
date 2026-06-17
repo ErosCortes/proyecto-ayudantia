@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_ENDPOINTS from "../../config/api";
+import apiClient from "../../config/apiClient";
 
 function Apply() {
   const [sections, setSections] = useState([]);
@@ -14,13 +14,7 @@ function Apply() {
   const fetchAvailableSections = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_ENDPOINTS.sectionsAvailable, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient("/sections/available/");
 
       if (!response.ok) {
         throw new Error("Error al obtener secciones disponibles");
@@ -44,12 +38,8 @@ function Apply() {
 
     try {
       setSubmitting(true);
-      const response = await fetch(API_ENDPOINTS.apply, {
+      const response = await apiClient("/postulations/apply/", {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({ id_curso: sectionId }),
       });
 
@@ -116,7 +106,7 @@ function Apply() {
               </p>
 
               <p className="mt-2 text-gray-700">
-                <strong>Sección:</strong> {section.numero}
+                <strong>NRC:</strong> {section.nrc}
               </p>
 
               <p className="mt-2 text-gray-700">

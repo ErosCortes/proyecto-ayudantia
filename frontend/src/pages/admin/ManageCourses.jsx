@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import API_ENDPOINTS from "../../config/api";
+import apiClient from "../../config/apiClient";
 
 function ManageCourses() {
   const [courses, setCourses] = useState([]);
@@ -21,13 +21,7 @@ function ManageCourses() {
   const fetchCourses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(API_ENDPOINTS.courses, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await apiClient("/courses/");
 
       if (!response.ok) {
         throw new Error("Error al obtener cursos");
@@ -56,25 +50,15 @@ function ManageCourses() {
     e.preventDefault();
   
     if (!formData.nombre || !formData.codigo_curso) {
-      setError("El nombre y código del curso son requeridos");
+      setError("El nombre y codigo del curso son requeridos");
       return;
     }
 
     try {
       setSubmitting(true);
 
-      const csrfToken = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('csrftoken='))
-        ?.split('=')[1];
-
-      const response = await fetch(API_ENDPOINTS.courses, {
+      const response = await apiClient("/courses/", {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrfToken,  // ← esto faltaba
-        },
         body: JSON.stringify(formData),
       });
 
@@ -97,14 +81,13 @@ function ManageCourses() {
   };
 
   const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm("¿Estás seguro de que deseas eliminar este curso?")) {
+    if (!window.confirm("¿Estas seguro de que deseas eliminar este curso?")) {
       return;
     }
 
     try {
-      const response = await fetch(`${API_ENDPOINTS.courses}${courseId}/`, {
+      const response = await apiClient(`/courses/${courseId}/`, {
         method: "DELETE",
-        credentials: "include",
       });
 
       if (!response.ok) {

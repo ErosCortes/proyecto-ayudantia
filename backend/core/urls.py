@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from users.views import UserViewSet, StudentProfileViewSet, TeacherProfileViewSet, AdminProfileViewSet
+from rest_framework_simplejwt.views import TokenRefreshView
+from users.views import UserViewSet, StudentProfileViewSet, TeacherProfileViewSet, AdminProfileViewSet, RegisterView, LoginView
 from courses.views import CourseViewSet, SectionViewSet
 from applications.views import PostulationViewSet
 from history.views import AssistantHistoryViewSet
@@ -18,8 +19,9 @@ router.register(r'history', AssistantHistoryViewSet, basename='history')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('auth/', include('social_django.urls', namespace='social')),
     path('api/', include(router.urls)),
-    path('api/courses-ucn/', include('courses.urls')),  
-    path('users/', include('users.urls')),
+    path('api/courses-ucn/', include('courses.urls')),
+    path('api/auth/register/', RegisterView.as_view(), name='auth-register'),
+    path('api/auth/login/', LoginView.as_view(), name='auth-login'),
+    path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
 ]
