@@ -10,6 +10,10 @@ class Course(models.Model):
 
     codigo_curso = models.CharField(max_length=20, unique=True)
     nombre = models.CharField(max_length=100)
+    ayudantia_activa = models.BooleanField(
+        default=True,
+        help_text="Indica si el curso tiene ayudantía habilitada este semestre"
+    )
     metodo_seleccion = models.CharField(max_length=20,
                                         choices=METODO_SELECCION,
                                         default='INDIVIDUAL')

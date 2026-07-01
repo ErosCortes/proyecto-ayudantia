@@ -7,6 +7,15 @@ const ESTADO_STYLES = {
   CANCELADA: "bg-red-100 text-red-800",
 };
 
+const OPCIONES_ORDEN = [
+  { value: "prioridad", label: "Prioridad (PPA + nota curso)" },
+  { value: "ppa", label: "Mejor PPA" },
+  { value: "nota_curso", label: "Mejor nota en el curso" },
+  { value: "fecha", label: "Postulación más antigua" },
+  { value: "fecha_desc", label: "Postulación más reciente" },
+  { value: "nombre", label: "Nombre (A-Z)" },
+];
+
 function HistorialModal({ alumno, onClose }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,15 +111,16 @@ function Applicants() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalAlumno, setModalAlumno] = useState(null);
+  const [orden, setOrden] = useState("prioridad");
 
   useEffect(() => {
-    fetchPostulations();
-  }, []);
+    fetchPostulations(orden);
+  }, [orden]);
 
-  const fetchPostulations = async () => {
+  const fetchPostulations = async (criterioOrden) => {
     try {
       setLoading(true);
-      const response = await apiClient("/postulations/pending/");
+      const response = await apiClient(`/postulations/pending/?orden=${criterioOrden}`);
       if (!response.ok) throw new Error("Error al obtener postulaciones");
       const data = await response.json();
       setPostulations(data);
@@ -156,6 +166,25 @@ function Applicants() {
     <section>
       <h2 className="text-4xl font-bold text-[#003057]">Postulantes</h2>
       <p className="mt-4 text-gray-600">Revisa y gestiona los estudiantes postulados.</p>
+
+      {/* Selector de orden */}
+      <div className="mt-6 flex items-center gap-3">
+        <label htmlFor="orden" className="text-gray-700 font-medium text-sm">
+          Ordenar por:
+        </label>
+        <select
+          id="orden"
+          value={orden}
+          onChange={(e) => setOrden(e.target.value)}
+          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004b87]"
+        >
+          {OPCIONES_ORDEN.map((op) => (
+            <option key={op.value} value={op.value}>
+              {op.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
       {postulations.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-md p-6 mt-10 text-center">

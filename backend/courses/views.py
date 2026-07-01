@@ -71,7 +71,7 @@ class SectionViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'])
     def available(self, request):
-        sections = Section.objects.all()
+        sections = Section.objects.filter(course__ayudantia_activa=True)
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data)
 

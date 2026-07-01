@@ -32,7 +32,7 @@ class UserViewSet(viewsets.ModelViewSet):
         user = request.user
         profile_type = None
         profile_data = None
-
+        
         if hasattr(user, 'alumno_profile'):
             profile_type = 'student'
             profile_data = StudentProfileSerializer(user.alumno_profile).data
@@ -48,7 +48,27 @@ class UserViewSet(viewsets.ModelViewSet):
             'user': UserSerializer(user).data,
             'profile': profile_data
         })
+    @action(detail=False, methods=['get'])
+    def profile_type(self, request):
+        user = request.user
+        profile_type = None
+        profile_data = None
 
+        if hasattr(user, 'profesor_profile'):
+            profile_type = 'teacher'
+            profile_data = TeacherProfileSerializer(user.profesor_profile).data
+        elif hasattr(user, 'alumno_profile') and user.alumno_profile.alumno_activo:
+            profile_type = 'student'
+            profile_data = StudentProfileSerializer(user.alumno_profile).data
+        elif hasattr(user, 'admin_profile') or user.is_staff:
+            profile_type = 'admin'
+            profile_data = AdminProfileSerializer(user.admin_profile).data if hasattr(user, 'admin_profile') else {}
+
+        return Response({
+            'profile_type': profile_type,
+            'user': UserSerializer(user).data,
+            'profile': profile_data
+        })
     @action(detail=False, methods=['post'], permission_classes=[EsAdmin])
     def create_teacher(self, request):
         rut_raw = request.data.get('rut', '').strip()
@@ -91,6 +111,54 @@ class UserViewSet(viewsets.ModelViewSet):
             'password': password,
             'sync_secciones': secciones_creadas,
             'error_sync': error_sync,
+        }, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'], permission_classes=[EsAdmin])
+
+    def promote_to_teacher(self, request):
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({'error': 'user_id es requerido'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+        if hasattr(user, 'profesor_profile'):
+            return Response({'error': 'Este usuario ya tiene perfil de profesor'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #Para pasarlo de alumno a profe
+        if hasattr(user, 'alumno_profile'):
+            user.alumno_profile.activo = False
+            user.alumno_profile.save()
+
+        if not user.rut:
+            return Response(
+                {'error': 'El usuario no tiene RUT registrado, no se puede sincronizar con la UCN'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        TeacherProfile.objects.create(user=user, rut=user.rut)
+
+        secciones_creadas = 0
+        error_sync = None
+        try:
+            data = sync_profesor(user.rut)
+            if data and data.get('asignaturas'):
+                secciones_creadas = len(data['asignaturas'])
+        except Exception as e:
+            error_sync = str(e)
+            print(f"[promote_to_teacher] Error sync profesor: {e}")
+
+        sections = Section.objects.filter(profesor=user)
+        return Response({
+            'user': UserSerializer(user).data,
+            'profile': TeacherProfileSerializer(user.profesor_profile).data,
+            'sections': SectionSerializer(sections, many=True).data,
+            'sync_secciones': secciones_creadas,
+            'error_sync': error_sync,
+            'sigue_siendo_alumno': hasattr(user, 'alumno_profile'),
         }, status=status.HTTP_201_CREATED)
 
 

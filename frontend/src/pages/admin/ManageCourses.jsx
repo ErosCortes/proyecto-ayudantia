@@ -28,6 +28,12 @@ function ManageCourses() {
 
   const [profesores, setProfesores] = useState([]);
 
+  // Filtros independientes para cada tabla
+  const [filtroLocales, setFiltroLocales] = useState("");
+  const [filtroUcn, setFiltroUcn] = useState("");
+  // Filtro adicional por estado de ayudantía: "TODAS" | "ACTIVAS" | "INACTIVAS"
+  const [filtroAyudantia, setFiltroAyudantia] = useState("TODAS");
+
   useEffect(() => {
     fetchCursosUcn();
     fetchCursosLocales();
@@ -167,7 +173,57 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
   }
 };
 
+const handleToggleAyudantia = async (courseId, activaActual) => {
+  const nuevoValor = !activaActual;
+  const confirmMsg = nuevoValor
+    ? "¿Reactivar la ayudantía de este curso para el semestre?"
+    : "¿Marcar este curso como SIN ayudantía este semestre?";
+  if (!window.confirm(confirmMsg)) return;
+  try {
+    const res = await apiClient(`/courses/${courseId}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ ayudantia_activa: nuevoValor }),
+    });
+    if (!res.ok) throw new Error("Error al actualizar estado de ayudantía");
+    setCursosLocales((prev) =>
+      prev.map((c) =>
+        c.id === courseId ? { ...c, ayudantia_activa: nuevoValor } : c
+      )
+    );
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
   const codigosLocales = new Set(cursosLocales.map((c) => c.codigo_curso));
+
+  // Cursos locales filtrados por nombre/código y por estado de ayudantía (combinables)
+  const cursosLocalesFiltrados = cursosLocales.filter((c) => {
+    const term = filtroLocales.trim().toLowerCase();
+    const coincideTexto =
+      !term ||
+      c.nombre?.toLowerCase().includes(term) ||
+      c.codigo_curso?.toLowerCase().includes(term);
+
+    // Si el campo no existe en un curso viejo, se asume ayudantía activa por defecto
+    const activa = c.ayudantia_activa !== false;
+    const coincideEstado =
+      filtroAyudantia === "TODAS" ||
+      (filtroAyudantia === "ACTIVAS" && activa) ||
+      (filtroAyudantia === "INACTIVAS" && !activa);
+
+    return coincideTexto && coincideEstado;
+  });
+
+  // Cursos UCN filtrados por nombre, código o NRC (case-insensitive)
+  const cursosUcnFiltrados = cursosUcn.filter((curso) => {
+    const term = filtroUcn.trim().toLowerCase();
+    if (!term) return true;
+    const nombre = (curso.asignatura || curso.nombre || "").toLowerCase();
+    const codigo = (curso.codigo || "").toLowerCase();
+    const nrc = String(curso.nrc || "").toLowerCase();
+    return nombre.includes(term) || codigo.includes(term) || nrc.includes(term);
+  });
 
   return (
     <section>
@@ -180,7 +236,9 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
           <div>
             <h3 className="text-xl font-bold text-[#003057]">Cursos en el Sistema</h3>
             <p className="text-sm text-gray-500 mt-1">
-              {loadingLocales ? "Cargando..." : `${cursosLocales.length} cursos registrados`}
+              {loadingLocales
+                ? "Cargando..."
+                : `${cursosLocalesFiltrados.length} de ${cursosLocales.length} cursos registrados`}
             </p>
           </div>
           <button
@@ -256,11 +314,35 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
           </div>
         )}
 
+        {/* Filtros cursos locales */}
+        <div className="mb-4 flex flex-wrap gap-3">
+          <input
+            type="text"
+            value={filtroLocales}
+            onChange={(e) => setFiltroLocales(e.target.value)}
+            placeholder="Buscar por nombre o código..."
+            className="w-full md:w-80 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+          />
+          <select
+            value={filtroAyudantia}
+            onChange={(e) => setFiltroAyudantia(e.target.value)}
+            className="border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+          >
+            <option value="TODAS">Todas las ayudantías</option>
+            <option value="ACTIVAS">Ayudantía activa este semestre</option>
+            <option value="INACTIVAS">Ayudantía inactiva este semestre</option>
+          </select>
+        </div>
+
         {loadingLocales ? (
           <p className="text-gray-500 text-center py-8">Cargando cursos...</p>
         ) : cursosLocales.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
             No hay cursos en el sistema. Sincroniza desde la UCN o agrega uno manualmente.
+          </p>
+        ) : cursosLocalesFiltrados.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No se encontraron cursos que coincidan con "{filtroLocales}".
           </p>
         ) : (
           <div className="overflow-x-auto">
@@ -271,19 +353,28 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Nombre</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Método</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Coordinador</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Ayudantía</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {cursosLocales.map((course) => (
-                  <tr key={course.id} className="border-b border-gray-100 hover:bg-gray-50">
+                {cursosLocalesFiltrados.map((course) => {
+                  const ayudantiaActiva = course.ayudantia_activa !== false;
+                  return (
+                  <tr
+                    key={course.id}
+                    className={`border-b border-gray-100 hover:bg-gray-50 ${
+                      !ayudantiaActiva ? "bg-gray-50 opacity-60" : ""
+                    }`}
+                  >
                     <td className="py-3 px-4 text-gray-600 text-sm font-mono">{course.codigo_curso}</td>
                     <td className="py-3 px-4 text-gray-800">{course.nombre}</td>
                     <td className="py-3 px-4">
                       <select
                         value={course.metodo_seleccion}
                         onChange={(e) => handleCambiarMetodo(course.id, e.target.value)}
-                        className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+                        disabled={!ayudantiaActiva}
+                        className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white disabled:opacity-50"
                       >
                         <option value="INDIVIDUAL">Individual</option>
                         <option value="COORDINADOR">Coordinador</option>
@@ -294,7 +385,8 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
                         <select
                           value={course.coordinador || ""}
                           onChange={(e) => handleCambiarCoordinador(course.id, e.target.value)}
-                          className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+                          disabled={!ayudantiaActiva}
+                          className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white disabled:opacity-50"
                         >
                           <option value="">Sin asignar</option>
                           {profesores.map((p) => (
@@ -309,6 +401,28 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
                     </td>
                     <td className="py-3 px-4">
                       <button
+                        onClick={() => handleToggleAyudantia(course.id, ayudantiaActiva)}
+                        className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold transition ${
+                          ayudantiaActiva
+                            ? "bg-green-100 text-green-700 hover:bg-green-200"
+                            : "bg-red-100 text-red-700 hover:bg-red-200"
+                        }`}
+                        title={
+                          ayudantiaActiva
+                            ? "Click para marcar sin ayudantía este semestre"
+                            : "Click para reactivar la ayudantía"
+                        }
+                      >
+                        <span
+                          className={`w-2 h-2 rounded-full ${
+                            ayudantiaActiva ? "bg-green-600" : "bg-red-600"
+                          }`}
+                        />
+                        {ayudantiaActiva ? "Activa" : "Sin ayudantía"}
+                      </button>
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
                       onClick={() => handleDelete(course.id)}
                       className="text-red-600 hover:text-red-800 text-sm font-medium transition"
                    >
@@ -316,7 +430,8 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
                     </button>
                   </td>
                 </tr>
-               ))}
+                  );
+               })}
               </tbody>
             </table>
           </div>
@@ -329,7 +444,9 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
           <div>
             <h3 className="text-xl font-bold text-[#003057]">Cursos desde la UCN</h3>
             <p className="text-sm text-gray-500 mt-1">
-              {loadingUcn ? "Cargando..." : `${cursosUcn.length} cursos disponibles`}
+              {loadingUcn
+                ? "Cargando..."
+                : `${cursosUcnFiltrados.length} de ${cursosUcn.length} cursos disponibles`}
             </p>
           </div>
           <div className="flex gap-3 items-center">
@@ -359,10 +476,25 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
           </div>
         )}
 
+        {/* Filtro cursos UCN */}
+        <div className="mb-4">
+          <input
+            type="text"
+            value={filtroUcn}
+            onChange={(e) => setFiltroUcn(e.target.value)}
+            placeholder="Buscar por nombre, código o NRC..."
+            className="w-full md:w-80 border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+          />
+        </div>
+
         {loadingUcn ? (
           <p className="text-gray-500 text-center py-8">Consultando API de la UCN...</p>
         ) : cursosUcn.length === 0 ? (
           <p className="text-gray-500 text-center py-8">No se encontraron cursos en la API de la UCN.</p>
+        ) : cursosUcnFiltrados.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No se encontraron cursos que coincidan con "{filtroUcn}".
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left">
@@ -376,7 +508,7 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
                 </tr>
               </thead>
               <tbody>
-                {cursosUcn.map((curso, i) => {
+                {cursosUcnFiltrados.map((curso, i) => {
                   const sincronizado = codigosLocales.has(curso.codigo);
                   return (
                     <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">

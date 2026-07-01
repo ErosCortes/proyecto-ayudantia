@@ -45,8 +45,17 @@ function AdminSidebar() {
             >
               Historial Ayudantías
             </Link>
-          </li>
 
+
+          </li>
+          <li>
+          <Link
+            to="/admin/export-payments"
+            className="block bg-[#004b87] px-4 py-3 rounded-xl hover:bg-[#00AEEF] transition"
+          >
+            Exportar Pagos
+      </Link>
+        </li>
         </ul>
       </nav>
     </aside>

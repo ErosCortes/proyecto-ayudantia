@@ -7,7 +7,7 @@ from applications.models import Postulation
 class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', 'codigo_curso', 'nombre', 'metodo_seleccion', 'coordinador']
+        fields = ['id', 'codigo_curso', 'nombre', 'metodo_seleccion', 'coordinador','ayudantia_activa']
 
 
 class SectionSerializer(serializers.ModelSerializer):

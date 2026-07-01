@@ -14,8 +14,8 @@ class User(AbstractUser):
 
     @property
     def es_alumno(self):
-        return hasattr(self, 'alumno_profile')
-
+        return hasattr(self, 'alumno_profile') and self.alumno_profile.alumno_activo
+    
     @property
     def es_profesor(self):
         return hasattr(self, 'profesor_profile')
@@ -33,7 +33,7 @@ class StudentProfile(models.Model):
     alerta_academica = models.BooleanField(default=False)
     carrera_codigo = models.CharField(max_length=10, blank=True)
     carrera_nombre = models.CharField(max_length=150, blank=True)
-
+    alumno_activo = models.BooleanField(default=True)
     def __str__(self):
         return f"Alumno: {self.user.nombre_completo}"
 

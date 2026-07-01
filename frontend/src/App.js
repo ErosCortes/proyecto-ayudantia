@@ -21,6 +21,7 @@ import AdminHome from "./pages/admin/AdminHome";
 import ManageCourses from "./pages/admin/ManageCourses";
 import ManageUsers from "./pages/admin/ManageUsers";
 import HistorialAyudantias from "./pages/admin/HistorialAyudantias";
+import ExportPayments from "./pages/admin/ExportPayments.jsx";
 
 function ProtectedRoute({ children, allowedRole }) {
   const { isAuthenticated, profileType, loading } = useAuth();
@@ -95,6 +96,8 @@ function AppRoutes() {
         <Route path="courses" element={<ManageCourses />} />
         <Route path="users" element={<ManageUsers />} />
         <Route path="historial" element={<HistorialAyudantias />} />
+        <Route path="export-payments" element={<ExportPayments />} />
+
       </Route>
     </Routes>
   );
