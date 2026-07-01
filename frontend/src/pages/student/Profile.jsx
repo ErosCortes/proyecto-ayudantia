@@ -1,24 +1,38 @@
 import { useState, useEffect } from "react";
 import apiClient from "../../config/apiClient";
 
+const ESTADO_STYLES = {
+  COMPLETADA: "bg-green-100 text-green-800",
+  INCOMPLETA: "bg-yellow-100 text-yellow-800",
+  CANCELADA: "bg-red-100 text-red-800",
+};
+
 function Profile() {
   const [profileData, setProfileData] = useState(null);
+  const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchProfile();
+    fetchData();
   }, []);
 
-  const fetchProfile = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await apiClient("/users/profile_type/");
-      if (!response.ok) {
-        throw new Error("Error al obtener los datos del perfil");
-      }
-      const data = await response.json();
-      setProfileData(data);
+      const [profileRes, historyRes] = await Promise.all([
+        apiClient("/users/profile_type/"),
+        apiClient("/history/my_history/"),
+      ]);
+
+      if (!profileRes.ok) throw new Error("Error al obtener los datos del perfil");
+      if (!historyRes.ok) throw new Error("Error al obtener el historial de ayudantías");
+
+      const profileJson = await profileRes.json();
+      const historyJson = await historyRes.json();
+
+      setProfileData(profileJson);
+      setHistory(historyJson);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -54,6 +68,7 @@ function Profile() {
     <section>
       <h2 className="text-4xl font-bold text-[#003057]">Mi Perfil</h2>
 
+      {/* Datos personales */}
       <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
         <h3 className="text-2xl font-bold text-[#003057] mb-4">Datos Personales</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -98,6 +113,47 @@ function Profile() {
         </div>
       </div>
 
+      {/* Historial de ayudantías */}
+      <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
+        <h3 className="text-2xl font-bold text-[#003057] mb-4">
+          Historial de Ayudantías ({history.length})
+        </h3>
+
+        {history.length === 0 ? (
+          <p className="text-gray-600">No tienes ayudantías registradas aún.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-[#004b87]">
+                  <th className="py-3 px-4 font-bold text-[#003057]">Curso</th>
+                  <th className="py-3 px-4 font-bold text-[#003057]">Código</th>
+                  <th className="py-3 px-4 font-bold text-[#003057]">NRC</th>
+                  <th className="py-3 px-4 font-bold text-[#003057]">Semestre</th>
+                  <th className="py-3 px-4 font-bold text-[#003057]">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.map((item) => (
+                  <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
+                    <td className="py-3 px-4 text-gray-700">{item.curso_nombre}</td>
+                    <td className="py-3 px-4 text-gray-500 text-sm">{item.curso_codigo}</td>
+                    <td className="py-3 px-4 text-gray-500 text-sm">{item.seccion_nrc}</td>
+                    <td className="py-3 px-4 text-gray-700">{item.semestre}</td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${ESTADO_STYLES[item.estado_final] || "bg-gray-100 text-gray-700"}`}>
+                        {item.estado_final}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Asignaturas aprobadas */}
       <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
         <h3 className="text-2xl font-bold text-[#003057] mb-4">
           Asignaturas Aprobadas ({subjects.length})
@@ -126,9 +182,9 @@ function Profile() {
                     <td className="py-3 px-4 text-gray-700">{subject.periodo}</td>
                     <td className="py-3 px-4">
                       <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                        subject.inscription_type === 'CONVALIDADA'
-                          ? 'bg-purple-100 text-purple-800'
-                          : 'bg-blue-100 text-blue-800'
+                        subject.inscription_type === "CONVALIDADA"
+                          ? "bg-purple-100 text-purple-800"
+                          : "bg-blue-100 text-blue-800"
                       }`}>
                         {subject.inscription_type}
                       </span>

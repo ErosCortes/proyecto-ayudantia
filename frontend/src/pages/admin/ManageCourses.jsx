@@ -2,9 +2,20 @@ import { useState, useEffect } from "react";
 import apiClient from "../../config/apiClient";
 
 function ManageCourses() {
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Cursos de la UCN (API externa)
+  const [cursosUcn, setCursosUcn] = useState([]);
+  const [loadingUcn, setLoadingUcn] = useState(true);
+  const [errorUcn, setErrorUcn] = useState(null);
+
+  // Cursos guardados en la BD local
+  const [cursosLocales, setCursosLocales] = useState([]);
+  const [loadingLocales, setLoadingLocales] = useState(true);
+
+  // Sincronización
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState(null);
+
+  // Formulario nuevo curso manual
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
@@ -13,237 +24,385 @@ function ManageCourses() {
     metodo_seleccion: "INDIVIDUAL",
   });
   const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState(null);
+
+  const [profesores, setProfesores] = useState([]);
 
   useEffect(() => {
-    fetchCourses();
+    fetchCursosUcn();
+    fetchCursosLocales();
+    fetchProfesores();
   }, []);
 
-  const fetchCourses = async () => {
+  const fetchCursosUcn = async () => {
     try {
-      setLoading(true);
-      const response = await apiClient("/courses/");
-
-      if (!response.ok) {
-        throw new Error("Error al obtener cursos");
-      }
-
-      const data = await response.json();
-      setCourses(data);
-      setError(null);
+      setLoadingUcn(true);
+      setErrorUcn(null);
+      const res = await apiClient("/courses-ucn/");
+      if (!res.ok) throw new Error("Error al obtener cursos desde la UCN");
+      const data = await res.json();
+      setCursosUcn(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message);
-      console.error("Error:", err);
+      setErrorUcn(err.message);
     } finally {
-      setLoading(false);
+      setLoadingUcn(false);
+    }
+  };
+
+  const fetchCursosLocales = async () => {
+    try {
+      setLoadingLocales(true);
+      const res = await apiClient("/courses/");
+      if (!res.ok) throw new Error("Error al obtener cursos locales");
+      const data = await res.json();
+      setCursosLocales(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingLocales(false);
+    }
+  };
+
+  const fetchProfesores = async () => {
+  try {
+    const res = await apiClient("/teacher-profiles/");
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    setProfesores(data);
+  } catch (err) {
+    console.error("Error al cargar profesores", err);
+  }
+};
+
+  const handleSync = async () => {
+    try {
+      setSyncing(true);
+      setSyncResult(null);
+      const res = await apiClient("/courses-ucn/sync/", { method: "POST" });
+      if (!res.ok) throw new Error("Error al sincronizar");
+      const data = await res.json();
+      setSyncResult(data);
+      await fetchCursosLocales();
+    } catch (err) {
+      setSyncResult({ error: err.message });
+    } finally {
+      setSyncing(false);
     }
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
     if (!formData.nombre || !formData.codigo_curso) {
-      setError("El nombre y codigo del curso son requeridos");
+      setFormError("El nombre y código del curso son requeridos");
       return;
     }
-
     try {
       setSubmitting(true);
-
-      const response = await apiClient("/courses/", {
+      setFormError(null);
+      const res = await apiClient("/courses/", {
         method: "POST",
         body: JSON.stringify(formData),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Error al crear curso");
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "Error al crear curso");
       }
-
-      const newCourse = await response.json();
-      setCourses((prev) => [...prev, newCourse]);
+      const newCourse = await res.json();
+      setCursosLocales((prev) => [...prev, newCourse]);
       setFormData({ nombre: "", codigo_curso: "", description: "", metodo_seleccion: "INDIVIDUAL" });
       setShowForm(false);
-      setError(null);
     } catch (err) {
-      setError(err.message);
-      console.error("Error:", err);
+      setFormError(err.message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteCourse = async (courseId) => {
-    if (!window.confirm("¿Estas seguro de que deseas eliminar este curso?")) {
-      return;
-    }
-
+  const handleDelete = async (courseId) => {
+    if (!window.confirm("¿Estás seguro de eliminar este curso?")) return;
     try {
-      const response = await apiClient(`/courses/${courseId}/`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error("Error al eliminar curso");
-      }
-
-      setCourses((prev) => prev.filter((course) => course.id !== courseId));
+      const res = await apiClient(`/courses/${courseId}/`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Error al eliminar curso");
+      setCursosLocales((prev) => prev.filter((c) => c.id !== courseId));
     } catch (err) {
-      setError(err.message);
-      console.error("Error:", err);
+      alert(err.message);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl text-gray-600">Cargando cursos...</p>
-      </div>
+  const handleCambiarMetodo = async (courseId, nuevoMetodo) => {
+  try {
+    const res = await apiClient(`/courses/${courseId}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ metodo_seleccion: nuevoMetodo }),
+    });
+    if (!res.ok) throw new Error("Error al actualizar método");
+    setCursosLocales((prev) =>
+      prev.map((c) =>
+        c.id === courseId ? { ...c, metodo_seleccion: nuevoMetodo } : c
+      )
     );
+  } catch (err) {
+    alert(err.message);
   }
+};
+
+const handleCambiarCoordinador = async (courseId, profesorUserId) => {
+  try {
+    const res = await apiClient(`/courses/${courseId}/`, {
+      method: "PATCH",
+      body: JSON.stringify({ coordinador: profesorUserId || null }),
+    });
+    if (!res.ok) throw new Error("Error al asignar coordinador");
+    setCursosLocales((prev) =>
+      prev.map((c) =>
+        c.id === courseId ? { ...c, coordinador: profesorUserId || null } : c
+      )
+    );
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
+  const codigosLocales = new Set(cursosLocales.map((c) => c.codigo_curso));
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h1 className="text-3xl font-bold text-[#003057] mb-6">
-        Gestión de Cursos
-      </h1>
+    <section>
+      <h2 className="text-4xl font-bold text-[#003057]">Gestión de Cursos</h2>
+      <p className="mt-2 text-gray-500">Cursos obtenidos desde la API de la UCN y cursos registrados en el sistema.</p>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+      {/* ── CURSOS LOCALES ── */}
+      <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h3 className="text-xl font-bold text-[#003057]">Cursos en el Sistema</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {loadingLocales ? "Cargando..." : `${cursosLocales.length} cursos registrados`}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#0099cc] transition text-sm"
+          >
+            {showForm ? "Cancelar" : "+ Agregar curso manual"}
+          </button>
         </div>
-      )}
 
-      <button
-        onClick={() => setShowForm(!showForm)}
-        className="bg-[#00AEEF] text-white px-4 py-2 rounded-lg hover:bg-[#0099cc] transition mb-6"
-      >
-        {showForm ? "Cancelar" : "+ Crear Nuevo Curso"}
-      </button>
-
-      {showForm && (
-        <div className="bg-gray-50 border-2 border-[#003057] rounded-lg p-6 mb-6">
-          <h2 className="text-xl font-bold text-[#003057] mb-4">
-            Crear Nuevo Curso
-          </h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Nombre del Curso *
-              </label>
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
-                placeholder="Ej: Cálculo I"
-              />
+        {showForm && (
+          <div className="bg-gray-50 border-2 border-[#003057] rounded-xl p-5 mb-6">
+            <h4 className="text-lg font-bold text-[#003057] mb-4">Nuevo Curso</h4>
+            {formError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-sm">
+                {formError}
+              </div>
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                <input
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
+                  onChange={handleInputChange}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+                  placeholder="Ej: Cálculo I"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Código *</label>
+                <input
+                  type="text"
+                  name="codigo_curso"
+                  value={formData.codigo_curso}
+                  onChange={handleInputChange}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+                  placeholder="Ej: MAT101"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Método de selección</label>
+                <select
+                  name="metodo_seleccion"
+                  value={formData.metodo_seleccion}
+                  onChange={handleInputChange}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+                >
+                  <option value="INDIVIDUAL">Individual (cada profesor elige)</option>
+                  <option value="COORDINADOR">Coordinador (un profesor coordina)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+                  placeholder="Opcional"
+                />
+              </div>
             </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Código del Curso *
-              </label>
-              <input
-                type="text"
-                name="codigo_curso"
-                value={formData.codigo_curso}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
-                placeholder="Ej: MAT101"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Descripción
-              </label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
-                placeholder="Descripción del curso"
-                rows="4"
-              />
-            </div>
-
-            <div>
-              <label className="block text-gray-700 font-semibold mb-2">
-                Método de Selección
-              </label>
-              <select
-                name="metodo_seleccion"
-                value={formData.metodo_seleccion}
-                onChange={handleInputChange}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-[#00AEEF]"
-              >
-                <option value="INDIVIDUAL">Cada profesor elige su propio ayudante</option>
-                <option value="COORDINADOR">Un profesor coordina todos los paralelos</option>
-              </select>
-            </div>
-
             <button
-              type="submit"
+              onClick={handleSubmit}
               disabled={submitting}
-              className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+              className="mt-4 bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition text-sm disabled:opacity-50"
             >
-              {submitting ? "Creando..." : "Crear Curso"}
+              {submitting ? "Guardando..." : "Guardar curso"}
             </button>
-          </form>
-        </div>
-      )}
+          </div>
+        )}
 
-      <h2 className="text-2xl font-bold text-[#003057] mb-4">
-        Cursos Disponibles
-      </h2>
+        {loadingLocales ? (
+          <p className="text-gray-500 text-center py-8">Cargando cursos...</p>
+        ) : cursosLocales.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No hay cursos en el sistema. Sincroniza desde la UCN o agrega uno manualmente.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-[#004b87]">
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Código</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Nombre</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Método</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Coordinador</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cursosLocales.map((course) => (
+                  <tr key={course.id} className="border-b border-gray-100 hover:bg-gray-50">
+                    <td className="py-3 px-4 text-gray-600 text-sm font-mono">{course.codigo_curso}</td>
+                    <td className="py-3 px-4 text-gray-800">{course.nombre}</td>
+                    <td className="py-3 px-4">
+                      <select
+                        value={course.metodo_seleccion}
+                        onChange={(e) => handleCambiarMetodo(course.id, e.target.value)}
+                        className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+                      >
+                        <option value="INDIVIDUAL">Individual</option>
+                        <option value="COORDINADOR">Coordinador</option>
+                      </select>
+                    </td>
+                    <td className="py-3 px-4">
+                      {course.metodo_seleccion === "COORDINADOR" ? (
+                        <select
+                          value={course.coordinador || ""}
+                          onChange={(e) => handleCambiarCoordinador(course.id, e.target.value)}
+                          className="border-2 border-gray-200 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+                        >
+                          <option value="">Sin asignar</option>
+                          {profesores.map((p) => (
+                            <option key={p.id} value={p.user.id}>
+                              {p.user.nombre_completo}
+                            </option>
+                          ))}
+                        </select>
+                     ) : (
+                       <span className="text-gray-400 text-sm">—</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
+                      onClick={() => handleDelete(course.id)}
+                      className="text-red-600 hover:text-red-800 text-sm font-medium transition"
+                   >
+                     Eliminar
+                    </button>
+                  </td>
+                </tr>
+               ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
-      {courses.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-600 text-lg">No hay cursos disponibles</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {courses.map((course) => (
-            <div
-              key={course.id}
-              className="border-2 border-[#004b87] rounded-lg p-4 hover:shadow-lg transition"
+      {/* ── CURSOS UCN ── */}
+      <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+          <div>
+            <h3 className="text-xl font-bold text-[#003057]">Cursos desde la UCN</h3>
+            <p className="text-sm text-gray-500 mt-1">
+              {loadingUcn ? "Cargando..." : `${cursosUcn.length} cursos disponibles`}
+            </p>
+          </div>
+          <div className="flex gap-3 items-center">
+            {syncResult && !syncResult.error && (
+              <span className="text-sm text-green-700 bg-green-100 px-3 py-1 rounded-full">
+                ✓ {syncResult.creados} creados, {syncResult.actualizados} actualizados
+              </span>
+            )}
+            {syncResult?.error && (
+              <span className="text-sm text-red-700 bg-red-100 px-3 py-1 rounded-full">
+                {syncResult.error}
+              </span>
+            )}
+            <button
+              onClick={handleSync}
+              disabled={syncing || loadingUcn}
+              className="bg-[#003057] text-white px-4 py-2 rounded-lg hover:bg-[#004b87] transition text-sm disabled:opacity-50"
             >
-              <h3 className="text-lg font-bold text-[#003057] mb-2">
-                {course.nombre}
-              </h3>
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Código:</strong> {course.codigo_curso}
-              </p>
-              <p className="text-sm text-gray-600 mb-2">
-                <strong>Método:</strong> {course.metodo_seleccion === 'INDIVIDUAL' ? 'Individual' : 'Coordinador'}
-              </p>
-              <p className="text-sm text-gray-600 mb-4">
-                <strong>Descripción:</strong> {course.description || "-"}
-              </p>
-              <p className="text-xs text-gray-500 mb-4">
-                Creado: {new Date(course.created_at).toLocaleDateString("es-CL")}
-              </p>
-              <button
-                onClick={() => handleDeleteCourse(course.id)}
-                className="w-full bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition text-sm"
-              >
-                Eliminar
-              </button>
-            </div>
-          ))}
+              {syncing ? "Sincronizando..." : "↻ Sincronizar al sistema"}
+            </button>
+          </div>
         </div>
-      )}
-    </div>
+
+        {errorUcn && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm">
+            {errorUcn}
+          </div>
+        )}
+
+        {loadingUcn ? (
+          <p className="text-gray-500 text-center py-8">Consultando API de la UCN...</p>
+        ) : cursosUcn.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">No se encontraron cursos en la API de la UCN.</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b-2 border-[#004b87]">
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Código</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Nombre</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">NRC</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Estado</th>
+
+                </tr>
+              </thead>
+              <tbody>
+                {cursosUcn.map((curso, i) => {
+                  const sincronizado = codigosLocales.has(curso.codigo);
+                  return (
+                    <tr key={i} className="border-b border-gray-100 hover:bg-gray-50">
+                      <td className="py-3 px-4 text-gray-600 text-sm font-mono">{curso.codigo}</td>
+                      <td className="py-3 px-4 text-gray-800">{curso.asignatura || curso.nombre}</td>
+                      <td className="py-3 px-4 text-gray-500 text-sm">{curso.nrc || "-"}</td>
+                      <td className="py-3 px-4">
+                        {sincronizado ? (
+                          <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            En sistema
+                          </span>
+                        ) : (
+                          <span className="inline-block px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                            Sin sincronizar
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }
 

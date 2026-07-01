@@ -38,6 +38,15 @@ function AdminSidebar() {
             </Link>
           </li>
 
+          <li>
+            <Link
+              to="/admin/historial"
+              className="block bg-[#004b87] px-4 py-3 rounded-xl hover:bg-[#00AEEF] transition"
+            >
+              Historial Ayudantías
+            </Link>
+          </li>
+
         </ul>
       </nav>
     </aside>

@@ -20,6 +20,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminHome from "./pages/admin/AdminHome";
 import ManageCourses from "./pages/admin/ManageCourses";
 import ManageUsers from "./pages/admin/ManageUsers";
+import HistorialAyudantias from "./pages/admin/HistorialAyudantias";
 
 function ProtectedRoute({ children, allowedRole }) {
   const { isAuthenticated, profileType, loading } = useAuth();
@@ -93,6 +94,7 @@ function AppRoutes() {
         <Route index element={<AdminHome />} />
         <Route path="courses" element={<ManageCourses />} />
         <Route path="users" element={<ManageUsers />} />
+        <Route path="historial" element={<HistorialAyudantias />} />
       </Route>
     </Routes>
   );

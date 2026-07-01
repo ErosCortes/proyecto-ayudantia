@@ -60,6 +60,7 @@ DB_PASSWORD=Admin2307
 DB_HOST=localhost
 DB_PORT=5432
 
+SECRET_KEY= pongan cualquier cosa acá
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
 UCN_API_PUCLARO=<el link de puclaro, solo copia el link hasta /api ya que el resto de la url lo maneja el codigo>
