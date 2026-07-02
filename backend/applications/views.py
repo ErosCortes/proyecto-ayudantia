@@ -106,6 +106,25 @@ class PostulationViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(postulation)
         return Response(serializer.data)
+    
+
+    @action(detail=False, methods=['get'])
+    def accepted(self, request):
+      """Postulaciones aceptadas que el usuario actual puede ver."""
+      user = request.user
+      section_id = request.query_params.get('section_id')
+
+      postulations = Postulation.objects.filter(estado='ACEPTADA').filter(
+          Q(id_curso__profesor=user, id_curso__course__metodo_seleccion='INDIVIDUAL') |
+          Q(id_curso__course__coordinador=user, id_curso__course__metodo_seleccion='COORDINADOR')
+      )
+
+      if section_id:
+        postulations = postulations.filter(id_curso_id=section_id)
+
+      postulations = postulations.distinct().order_by('id_alumno__nombre_completo')
+      serializer = self.get_serializer(postulations, many=True)
+      return Response(serializer.data)
 
     @action(detail=False, methods=['get'])
     def pending(self, request):
@@ -126,7 +145,22 @@ class PostulationViewSet(viewsets.ModelViewSet):
         if section_id:
             postulations = postulations.filter(id_curso_id=section_id)
 
-        postulations = postulations.distinct().ordenar_por(criterio)
+        postulations = postulations.distinct()
+
+        if criterio == 'ppa':
+          postulations = postulations.order_by('-id_alumno__alumno_profile__ppa')
+        elif criterio == 'nota_curso':
+          postulations = postulations.order_by('-nota_curso')
+        elif criterio == 'fecha':
+          postulations = postulations.order_by('created_at')
+        elif criterio == 'fecha_desc':
+          postulations = postulations.order_by('-created_at')
+        elif criterio == 'nombre':
+          postulations = postulations.order_by('id_alumno__nombre_completo')
+        else:  # prioridad (default)
+          postulations = postulations.order_by('-id_alumno__alumno_profile__ppa', '-nota_curso')
 
         serializer = self.get_serializer(postulations, many=True)
         return Response(serializer.data)
+    
+
