@@ -27,7 +27,7 @@ python manage.py migrate
 # Poblar base de datos con datos de prueba (para admin y usuarios random)
 python seed.py
 
-#  Crear la estudiante de prueba María (¡¡¡¡IMPORTANTE, SINO NO FUNCIONARA!!!!)
+#  Crear la estudiante de prueba María (IMPORTANTE, SINO NO FUNCIONARA)
 python manage.py import_student
 
 # Ejecutar servidor
@@ -54,65 +54,14 @@ npm start
 
 Crear archivo `.env` en `backend/`:
 
-DB_NAME=ayudantias_db
-DB_USER=postgres
-DB_PASSWORD=Admin2307
+DB_NAME=nombre_de_database
+DB_USER=tu_usuario_postgres
+DB_PASSWORD=tu_contrasena_de_postgres
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=colocas_tu_port
 
 SECRET_KEY= pongan cualquier cosa acá
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET=<Las credenciales son las de las otra vez que mando el Eros, esta e el wtsp>
 UCN_API_PUCLARO=<el link de puclaro, solo copia el link hasta /api ya que el resto de la url lo maneja el codigo>
-UCN_API_LOSVILOS=<lo mismo pero con los vilos, hasta /api, ejemplo https://url.ucn.cl/puclaro/api>
+UCN_API_LOSVILOS=<lo mismo pero con los vilos>
 UCN_API_TOKEN=<el token que nos dieron>
 ---
-
-## 🌐 OAuth Google
-
-Configurar credenciales en Google Cloud Console.
-Aqui yo ya cree las credenciales con google, cualquier cosa me dicen nomas xd (funciona 24/7 suuuuuu)
-
-Redirect URI:
-
-```
-http://localhost:8000/auth/complete/google-oauth2/
-```
-
-
----
-
-## 🧪 Usuarios de prueba
-
-Para probar el sistema sin correos institucionales, agregar en `users/pipeline.py`:
-
-```python
-# ── CORREOS DE PRUEBA (eliminar antes de entregar) ── #A mi no me dejo crear un correo en google, por el numero de telefono
-if email == "tucorreo@gmail.com": #solo cambien el correo en el if y esta listo 
-    AdminProfile.objects.get_or_create(user=user, defaults={'cargo': '', 'facultad': ''})
-    user.is_staff = True
-    user.save()
-    return
-```
-
-Dominios válidos en producción:
-- `@alumnos.ucn.cl` → Alumno
-- `@ce.ucn.cl` → Profesor
-- `@ucn.cl` → Administrador
-
----
-
-## 📁 Estructura del proyecto
-- **backend/**
-  - core/         → configuración Django
-  - users/        → usuarios y perfiles
-  - courses/      → cursos y secciones
-  - applications/ → postulaciones
-  - history/      → historial de ayudantías
-  - seed.py       → datos de prueba
-- **frontend/**
-  - src/
-    - pages/      → páginas por rol (admin, student, teacher)
-    - components/ → componentes reutilizables
-    - config/     → configuración de la API
-    - data/       → datos mock temporales
