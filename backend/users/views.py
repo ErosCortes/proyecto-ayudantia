@@ -82,11 +82,13 @@ class UserViewSet(viewsets.ModelViewSet):
         TeacherProfile.objects.create(user=user)
 
         secciones_creadas = 0
+        courses_summary = []
         error_sync = None
         try:
             data = sync_profesor(rut_raw)
             if data and data.get('asignaturas'):
                 secciones_creadas = len(data['asignaturas'])
+                courses_summary = data.get('courses_summary', [])
         except Exception as e:
             error_sync = str(e)
             print(f"[create_teacher] Error sync profesor: {e}")
@@ -98,6 +100,7 @@ class UserViewSet(viewsets.ModelViewSet):
             'sections': SectionSerializer(sections, many=True).data,
             'password': password,
             'sync_secciones': secciones_creadas,
+            'courses_summary': courses_summary,
             'error_sync': error_sync,
         }, status=status.HTTP_201_CREATED)
     
@@ -130,11 +133,13 @@ class UserViewSet(viewsets.ModelViewSet):
         TeacherProfile.objects.create(user=user, rut=user.rut)
 
         secciones_creadas = 0
+        courses_summary = []
         error_sync = None
         try:
             data = sync_profesor(user.rut)
             if data and data.get('asignaturas'):
                 secciones_creadas = len(data['asignaturas'])
+                courses_summary = data.get('courses_summary', [])
         except Exception as e:
             error_sync = str(e)
             print(f"[promote_to_teacher] Error sync profesor: {e}")
@@ -145,6 +150,7 @@ class UserViewSet(viewsets.ModelViewSet):
             'profile': TeacherProfileSerializer(user.profesor_profile).data,
             'sections': SectionSerializer(sections, many=True).data,
             'sync_secciones': secciones_creadas,
+            'courses_summary': courses_summary,
             'error_sync': error_sync,
             'sigue_siendo_alumno': hasattr(user, 'alumno_profile'),
         }, status=status.HTTP_201_CREATED)

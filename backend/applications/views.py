@@ -6,6 +6,7 @@ from users.permissions import EsAlumno, EsProfesor
 from rest_framework.permissions import IsAuthenticated
 from .models import Postulation
 from .serializers import PostulationSerializer
+from courses.models import Course, Section
 from history.models import AssistantHistory
 
 
@@ -15,67 +16,60 @@ class PostulationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_permissions(self):
-        """Permisos distintos según la acción"""
         if self.action in ['apply', 'my_applications']:
             return [EsAlumno()]
-        if self.action == 'update_status':
-            return [EsProfesor()]
-        if self.action == 'pending':
+        if self.action in ['update_status', 'pending', 'assign_section']:
             return [EsProfesor()]
         return [IsAuthenticated()]
 
-    def _puede_revisar(self, user, section):
-        """
-        Determina si `user` puede revisar/decidir postulaciones de `section`,
-        según el método de selección del curso al que pertenece:
-        - INDIVIDUAL: solo el profesor asignado a esa sección específica.
-        - COORDINADOR: solo el coordinador asignado al curso (puede revisar
-          postulaciones de todas las secciones de ese curso, no solo la suya).
-        """
-        course = section.course
+    def _puede_revisar(self, user, course):
         if course.metodo_seleccion == 'COORDINADOR':
             return course.coordinador_id == user.id
-        return section.profesor_id == user.id
+        return course.sections.filter(profesor=user).exists()
+
+    def _mis_cursos(self, user):
+        return Course.objects.filter(
+            Q(sections__profesor=user, metodo_seleccion='INDIVIDUAL') |
+            Q(coordinador=user, metodo_seleccion='COORDINADOR')
+        ).distinct()
 
     @action(detail=False, methods=['get'])
     def my_applications(self, request):
-        """Postulaciones del alumno actual"""
         postulations = Postulation.objects.filter(id_alumno=request.user)
         serializer = self.get_serializer(postulations, many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['post'])
     def apply(self, request):
-        """Alumno postula a una sección"""
-        id_curso = request.data.get('id_curso')
+        curso_id = request.data.get('curso_id')
 
         ya_postulo = Postulation.objects.filter(
             id_alumno=request.user,
-            id_curso_id=id_curso
+            curso_id=curso_id
         ).exists()
 
         if ya_postulo:
             return Response(
-                {'error': 'Ya postulaste a esta ayudantía anteriormente.'},
+                {'error': 'Ya postulaste a este curso anteriormente.'},
                 status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
             postulation = Postulation.objects.create(
                 id_alumno=request.user,
-                id_curso_id=id_curso,
+                curso_id=curso_id,
                 estado='PENDIENTE'
             )
             serializer = self.get_serializer(postulation)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=True, methods=['patch'])
     def update_status(self, request, pk=None):
-        """Profesor o coordinador acepta o rechaza una postulación"""
         postulation = self.get_object()
 
-        if not self._puede_revisar(request.user, postulation.id_curso):
+        if not self._puede_revisar(request.user, postulation.curso):
             return Response(
                 {'error': 'No tienes permiso para revisar esta postulación'},
                 status=status.HTTP_403_FORBIDDEN
@@ -94,12 +88,12 @@ class PostulationViewSet(viewsets.ModelViewSet):
         postulation.comentario = request.data.get('comentario', '')
         postulation.save()
 
-        if nuevo_estado == 'ACEPTADA':
+        if nuevo_estado == 'ACEPTADA' and postulation.seccion_asignada:
             AssistantHistory.objects.get_or_create(
                 id_alumno=postulation.id_alumno,
-                id_curso=postulation.id_curso,
+                id_curso=postulation.seccion_asignada,
                 defaults={
-                    'semestre': postulation.id_curso.semestre,
+                    'semestre': postulation.seccion_asignada.semestre,
                     'estado_final': 'COMPLETADA'
                 }
             )
@@ -107,24 +101,67 @@ class PostulationViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(postulation)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])
-    def pending(self, request):
-        """
-        Postulaciones pendientes que el usuario actual puede revisar.
-        Soporta ?orden=ppa | nota_curso | fecha | fecha_desc | nombre | prioridad
-        y ?section_id= para filtrar por sección específica.
-        """
-        user = request.user
-        criterio = request.query_params.get('orden', 'prioridad')
-        section_id = request.query_params.get('section_id')
+    @action(detail=True, methods=['post'])
+    def assign_section(self, request, pk=None):
+        postulation = self.get_object()
 
-        postulations = Postulation.objects.filter(estado='PENDIENTE').filter(
-            Q(id_curso__profesor=user, id_curso__course__metodo_seleccion='INDIVIDUAL') |
-            Q(id_curso__course__coordinador=user, id_curso__course__metodo_seleccion='COORDINADOR')
+        if postulation.estado != 'ACEPTADA':
+            return Response(
+                {'error': 'Solo puedes asignar sección a postulaciones aceptadas.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if not self._puede_revisar(request.user, postulation.curso):
+            return Response(
+                {'error': 'No tienes permiso para asignar sección a esta postulación'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        seccion_id = request.data.get('seccion_id')
+        if not seccion_id:
+            return Response(
+                {'error': 'seccion_id es requerido'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            section = Section.objects.get(id=seccion_id, course=postulation.curso)
+        except Section.DoesNotExist:
+            return Response(
+                {'error': 'La sección no existe o no pertenece al curso de esta postulación'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        postulation.seccion_asignada = section
+        postulation.save()
+
+        AssistantHistory.objects.get_or_create(
+            id_alumno=postulation.id_alumno,
+            id_curso=section,
+            defaults={
+                'semestre': section.semestre,
+                'estado_final': 'COMPLETADA'
+            }
         )
 
-        if section_id:
-            postulations = postulations.filter(id_curso_id=section_id)
+        serializer = self.get_serializer(postulation)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def pending(self, request):
+        user = request.user
+        criterio = request.query_params.get('orden', 'prioridad')
+        curso_id = request.query_params.get('curso_id')
+        estado = request.query_params.get('estado', 'PENDIENTE')
+
+        cursos = self._mis_cursos(user)
+        postulations = Postulation.objects.filter(
+            estado=estado,
+            curso__in=cursos
+        )
+
+        if curso_id:
+            postulations = postulations.filter(curso_id=curso_id)
 
         postulations = postulations.distinct().ordenar_por(criterio)
 

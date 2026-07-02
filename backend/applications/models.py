@@ -3,8 +3,10 @@ from django.core.exceptions import ValidationError
 from django.db.models import OuterRef, Subquery
 from django.db import models
 from django.conf import settings
-from courses.models import Section
+from courses.models import Course, Section
 from users.models import ApprovedSubject
+
+
 class PostulationQuerySet(models.QuerySet):
 
     CRITERIOS_ORDEN = {
@@ -23,14 +25,14 @@ class PostulationQuerySet(models.QuerySet):
     def con_nota_curso(self):
         nota_subquery = ApprovedSubject.objects.filter(
             student__user=OuterRef('id_alumno'),
-            codigo=OuterRef('id_curso__course__codigo_curso'),
+            codigo=OuterRef('curso__codigo_curso'),
         ).order_by('-nota').values('nota')[:1]
 
         return self.annotate(nota_en_curso=Subquery(nota_subquery))
 
     def ordenar_por(self, criterio='prioridad'):
         campos = self.CRITERIOS_ORDEN.get(criterio, self.CRITERIOS_ORDEN['prioridad'])
-        qs = self.select_related('id_alumno__alumno_profile', 'id_curso__course')
+        qs = self.select_related('id_alumno__alumno_profile', 'curso')
 
         if 'nota_en_curso' in ''.join(campos):
             qs = qs.con_nota_curso()
@@ -39,7 +41,8 @@ class PostulationQuerySet(models.QuerySet):
 
     def por_prioridad(self):
         return self.ordenar_por('prioridad')
-    
+
+
 class Postulation(models.Model):
     PPA_MINIMO = Decimal('5.0')
 
@@ -51,8 +54,11 @@ class Postulation(models.Model):
 
     id_alumno = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                                   related_name='postulaciones')
-    id_curso = models.ForeignKey(Section, on_delete=models.CASCADE,
-                                 related_name='postulaciones')
+    curso = models.ForeignKey(Course, on_delete=models.CASCADE,
+                              related_name='postulaciones')
+    seccion_asignada = models.ForeignKey(Section, on_delete=models.SET_NULL,
+                                         null=True, blank=True,
+                                         related_name='postulaciones_asignadas')
     estado = models.CharField(max_length=20, choices=STATUS_CHOICES,
                               default='PENDIENTE')
     comentario = models.TextField(blank=True)
@@ -64,22 +70,21 @@ class Postulation(models.Model):
     class Meta:
         verbose_name = "Postulación"
         verbose_name_plural = "Postulaciones"
-        unique_together = ['id_alumno', 'id_curso']
+        unique_together = ['id_alumno', 'curso']
+        ordering = ['-fecha_creacion']
 
     def __str__(self):
-        return f"{self.id_alumno.nombre_completo} → {self.id_curso} ({self.estado})"
+        return f"{self.id_alumno.nombre_completo} → {self.curso.codigo_curso} ({self.estado})"
 
     def clean(self):
         super().clean()
 
-        # Estas validaciones solo aplican al CREAR la postulación,
-        # no al cambiar su estado después.
         if self.pk is None:
             if not self.id_alumno.es_alumno:
                 raise ValidationError("Solo alumnos activos pueden postular.")
 
             perfil = self.id_alumno.alumno_profile
-            curso = self.id_curso.course
+            curso = self.curso
 
             if not curso.ayudantia_activa:
                 raise ValidationError("Este curso no tiene ayudantía activa este semestre.")

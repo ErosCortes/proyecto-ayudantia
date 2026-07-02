@@ -53,7 +53,13 @@ def get_profesor(rut, periodo='202520'):
 
 
 def sync_profesor(rut, periodo='202520'):
-    """Sincroniza las secciones de un profesor desde la API UCN"""
+    """Sincroniza las secciones de un profesor desde la API UCN.
+    
+    Busca coincidencia por código de curso (no por NRC). Para cada
+    asignatura del profesor en la API, intenta emparejar con un Course
+    existente por codigo_curso. Si existe, crea la sección; si no,
+    crea Course + Section.
+    """
     from courses.models import Course, Section
     from users.models import User
 
@@ -76,13 +82,20 @@ def sync_profesor(rut, periodo='202520'):
     year = int(str(periodo)[:4])
     semestre = str(periodo)[4:]
 
+    secciones_creadas = 0
+    courses_summary = []
+
     for asignatura in data['asignaturas']:
-        course, _ = Course.objects.get_or_create(
-            codigo_curso=asignatura['codigo'],
+        codigo = asignatura['codigo']
+        nrc = asignatura['nrc']
+
+        course, created = Course.objects.get_or_create(
+            codigo_curso=codigo,
             defaults={'nombre': asignatura.get('asignatura', '')}
         )
-        Section.objects.update_or_create(
-            nrc=asignatura['nrc'],
+
+        _, section_created = Section.objects.update_or_create(
+            nrc=nrc,
             defaults={
                 'course': course,
                 'profesor': profesor,
@@ -90,5 +103,18 @@ def sync_profesor(rut, periodo='202520'):
                 'year': year
             }
         )
+        if section_created:
+            secciones_creadas += 1
 
-    return data
+        courses_summary.append({
+            'codigo': codigo,
+            'nombre': asignatura.get('asignatura', ''),
+            'nrc': nrc,
+            'curso_existente': not created,
+        })
+
+    return {
+        'nombre': data.get('nombre', ''),
+        'asignaturas': data['asignaturas'],
+        'courses_summary': courses_summary,
+    }

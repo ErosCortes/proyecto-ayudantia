@@ -104,50 +104,123 @@ function HistorialModal({ alumno, onClose }) {
   );
 }
 
+function AsignarSeccionModal({ postulation, courseSections, onAssign, onClose }) {
+  const [selectedSection, setSelectedSection] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleAssign = async () => {
+    if (!selectedSection) return;
+    try {
+      setSaving(true);
+      const res = await apiClient(`/postulations/${postulation.id}/assign_section/`, {
+        method: "POST",
+        body: JSON.stringify({ seccion_id: parseInt(selectedSection) }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al asignar sección");
+      }
+      onAssign(postulation.id);
+      onClose();
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md p-6">
+        <h3 className="text-xl font-bold text-[#003057] mb-4">Asignar Sección</h3>
+        <p className="text-gray-600 mb-4">
+          Asigna un NRC a {postulation.alumno_nombre} para el curso {postulation.curso_nombre}.
+        </p>
+        <select
+          value={selectedSection}
+          onChange={(e) => setSelectedSection(e.target.value)}
+          className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF] bg-white mb-4"
+        >
+          <option value="">Selecciona un NRC</option>
+          {courseSections.map((sec) => (
+            <option key={sec.id} value={sec.id}>
+              NRC {sec.nrc} — {sec.profesor_nombre || "Sin profesor"}
+            </option>
+          ))}
+        </select>
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onClose}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition text-sm"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleAssign}
+            disabled={!selectedSection || saving}
+            className="bg-[#003057] text-white px-4 py-2 rounded-lg hover:bg-[#004b87] transition text-sm disabled:opacity-50"
+          >
+            {saving ? "Asignando..." : "Asignar"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { key: "PENDIENTE", label: "Pendientes" },
+  { key: "ACEPTADA", label: "Aceptados" },
+];
+
 function Applicants() {
-  const [sections, setSections] = useState([]);
-  const [selectedSection, setSelectedSection] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
   const [postulations, setPostulations] = useState([]);
-  const [loadingSections, setLoadingSections] = useState(true);
+  const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingPostulations, setLoadingPostulations] = useState(false);
   const [error, setError] = useState(null);
   const [modalAlumno, setModalAlumno] = useState(null);
+  const [asignarModal, setAsignarModal] = useState(null);
   const [orden, setOrden] = useState("prioridad");
+  const [sectionsByCourse, setSectionsByCourse] = useState({});
+  const [tab, setTab] = useState("PENDIENTE");
 
   useEffect(() => {
-    fetchSections();
+    fetchCourses();
   }, []);
 
   useEffect(() => {
-    if (selectedSection) {
-      fetchPostulations(selectedSection, orden);
+    if (selectedCourse) {
+      fetchPostulations(selectedCourse, orden, tab);
+      fetchSectionsForCourse(selectedCourse);
     } else {
       setPostulations([]);
     }
-  }, [selectedSection, orden]);
+  }, [selectedCourse, orden, tab]);
 
-  const fetchSections = async () => {
+  const fetchCourses = async () => {
     try {
-      setLoadingSections(true);
-      const response = await apiClient("/sections/my_sections/");
-      if (!response.ok) throw new Error("Error al obtener secciones");
+      setLoadingCourses(true);
+      const response = await apiClient("/courses/my_courses/");
+      if (!response.ok) throw new Error("Error al obtener cursos");
       const data = await response.json();
-      setSections(data);
+      setCourses(data);
       if (data.length > 0) {
-        setSelectedSection(data[0].id);
+        setSelectedCourse(data[0].id);
       }
       setError(null);
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoadingSections(false);
+      setLoadingCourses(false);
     }
   };
 
-  const fetchPostulations = async (sectionId, criterioOrden) => {
+  const fetchPostulations = async (courseId, criterioOrden, estado) => {
     try {
       setLoadingPostulations(true);
-      const response = await apiClient(`/postulations/pending/?section_id=${sectionId}&orden=${criterioOrden}`);
+      const response = await apiClient(`/postulations/pending/?curso_id=${courseId}&orden=${criterioOrden}&estado=${estado}`);
       if (!response.ok) throw new Error("Error al obtener postulaciones");
       const data = await response.json();
       setPostulations(data);
@@ -156,6 +229,17 @@ function Applicants() {
       setError(err.message);
     } finally {
       setLoadingPostulations(false);
+    }
+  };
+
+  const fetchSectionsForCourse = async (courseId) => {
+    try {
+      const res = await apiClient(`/sections/by_course/?course_id=${courseId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setSectionsByCourse((prev) => ({ ...prev, [courseId]: data }));
+    } catch (err) {
+      console.error("Error al cargar secciones", err);
     }
   };
 
@@ -172,15 +256,28 @@ function Applicants() {
     }
   };
 
-  if (loadingSections) {
+  const handleAccept = (postulation) => {
+    updateStatus(postulation.id, "ACEPTADA");
+  };
+
+  const handleAssignSection = (postulation) => {
+    setAsignarModal(postulation);
+  };
+
+  const onSectionAssigned = (postulationId) => {
+    setPostulations((prev) => prev.filter((p) => p.id !== postulationId));
+    setAsignarModal(null);
+  };
+
+  if (loadingCourses) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl text-gray-600">Cargando secciones...</p>
+        <p className="text-xl text-gray-600">Cargando cursos...</p>
       </div>
     );
   }
 
-  if (error && sections.length === 0) {
+  if (error && courses.length === 0) {
     return (
       <section>
         <h2 className="text-4xl font-bold text-[#003057]">Postulantes</h2>
@@ -192,34 +289,50 @@ function Applicants() {
   return (
     <section>
       <h2 className="text-4xl font-bold text-[#003057]">Postulantes</h2>
-      <p className="mt-4 text-gray-600">Selecciona una sección para ver sus postulantes.</p>
+      <p className="mt-4 text-gray-600">Selecciona un curso para ver sus postulantes.</p>
 
-      {sections.length === 0 ? (
+      {courses.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-md p-6 mt-10 text-center">
-          <p className="text-gray-600 text-lg">No tienes secciones asignadas.</p>
+          <p className="text-gray-600 text-lg">No tienes cursos asignados.</p>
         </div>
       ) : (
         <>
-          {/* Selector de secciones */}
+          {/* Selector de cursos */}
           <div className="mt-6 flex flex-wrap gap-3">
-            {sections.map((sec) => (
+            {courses.map((course) => (
               <button
-                key={sec.id}
-                onClick={() => setSelectedSection(sec.id)}
+                key={course.id}
+                onClick={() => setSelectedCourse(course.id)}
                 className={`px-5 py-3 rounded-xl font-medium text-sm transition ${
-                  selectedSection === sec.id
+                  selectedCourse === course.id
                     ? "bg-[#003057] text-white shadow-md"
                     : "bg-white text-gray-700 border border-gray-300 hover:border-[#003057]"
                 }`}
               >
-                {sec.course_nombre}
-                <span className="ml-2 text-xs opacity-75">NRC {sec.nrc}</span>
+                {course.codigo_curso} — {course.nombre}
+              </button>
+            ))}
+          </div>
+
+          {/* Tabs: Pendientes / Aceptados */}
+          <div className="mt-6 flex gap-2 border-b border-gray-200">
+            {TABS.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`px-5 py-2 text-sm font-medium transition border-b-2 -mb-px ${
+                  tab === t.key
+                    ? "border-[#003057] text-[#003057]"
+                    : "border-transparent text-gray-500 hover:text-gray-700"
+                }`}
+              >
+                {t.label}
               </button>
             ))}
           </div>
 
           {/* Selector de orden */}
-          <div className="mt-6 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3">
             <label htmlFor="orden" className="text-gray-700 font-medium text-sm">
               Ordenar por:
             </label>
@@ -244,7 +357,9 @@ function Applicants() {
           ) : postulations.length === 0 ? (
             <div className="bg-white rounded-2xl shadow-md p-6 mt-6 text-center">
               <p className="text-gray-600 text-lg">
-                No hay postulaciones pendientes para esta sección.
+                {tab === "PENDIENTE"
+                  ? "No hay postulaciones pendientes para este curso."
+                  : "No hay postulaciones aceptadas para este curso."}
               </p>
             </div>
           ) : (
@@ -255,8 +370,8 @@ function Applicants() {
                     <th className="text-left px-6 py-4">Nombre</th>
                     <th className="text-left px-6 py-4">RUT</th>
                     <th className="text-left px-6 py-4">PPA</th>
-                    <th className="text-left px-6 py-4">Asignatura</th>
-                    <th className="text-left px-6 py-4">NRC</th>
+                    <th className="text-left px-6 py-4">Curso</th>
+                    {tab === "ACEPTADA" && <th className="text-left px-6 py-4">NRC Asignado</th>}
                     <th className="text-left px-6 py-4">Acción</th>
                   </tr>
                 </thead>
@@ -267,7 +382,9 @@ function Applicants() {
                       <td className="px-6 py-4 text-gray-700">{p.alumno_rut}</td>
                       <td className="px-6 py-4">{p.alumno_ppa ?? "-"}</td>
                       <td className="px-6 py-4">{p.curso_nombre}</td>
-                      <td className="px-6 py-4 text-gray-700">{p.seccion_nrc}</td>
+                      {tab === "ACEPTADA" && (
+                        <td className="px-6 py-4 text-gray-700">{p.seccion_asignada_nrc || "-"}</td>
+                      )}
                       <td className="px-6 py-4">
                         <div className="flex gap-2 flex-wrap">
                           <button
@@ -276,18 +393,30 @@ function Applicants() {
                           >
                             Ver historial
                           </button>
-                          <button
-                            onClick={() => updateStatus(p.id, "ACEPTADA")}
-                            className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm"
-                          >
-                            Aceptar
-                          </button>
-                          <button
-                            onClick={() => updateStatus(p.id, "RECHAZADA")}
-                            className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition text-sm"
-                          >
-                            Rechazar
-                          </button>
+                          {tab === "PENDIENTE" && (
+                            <>
+                              <button
+                                onClick={() => handleAccept(p)}
+                                className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm"
+                              >
+                                Aceptar
+                              </button>
+                              <button
+                                onClick={() => updateStatus(p.id, "RECHAZADA")}
+                                className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition text-sm"
+                              >
+                                Rechazar
+                              </button>
+                            </>
+                          )}
+                          {tab === "ACEPTADA" && (
+                            <button
+                              onClick={() => handleAssignSection(p)}
+                              className="bg-[#003057] text-white px-3 py-2 rounded-lg hover:bg-[#004b87] transition text-sm"
+                            >
+                              Asignar NRC
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -303,6 +432,15 @@ function Applicants() {
         <HistorialModal
           alumno={modalAlumno}
           onClose={() => setModalAlumno(null)}
+        />
+      )}
+
+      {asignarModal && (
+        <AsignarSeccionModal
+          postulation={asignarModal}
+          courseSections={sectionsByCourse[asignarModal.curso] || []}
+          onAssign={onSectionAssigned}
+          onClose={() => setAsignarModal(null)}
         />
       )}
     </section>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import apiClient from "../../config/apiClient";
 
 function Apply() {
-  const [sections, setSections] = useState([]);
+  const [courses, setCourses] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,17 +22,17 @@ function Apply() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [sectionsRes, profileRes] = await Promise.all([
-        apiClient("/sections/available/"),
+      const [coursesRes, profileRes] = await Promise.all([
+        apiClient("/courses/available_for_student/"),
         apiClient("/users/profile_type/"),
       ]);
 
-      if (!sectionsRes.ok) {
-        throw new Error("Error al obtener secciones disponibles");
+      if (!coursesRes.ok) {
+        throw new Error("Error al obtener cursos disponibles");
       }
 
-      const sectionsData = await sectionsRes.json();
-      setSections(sectionsData);
+      const coursesData = await coursesRes.json();
+      setCourses(coursesData);
 
       if (profileRes.ok) {
         const profileData = await profileRes.json();
@@ -48,8 +48,8 @@ function Apply() {
     }
   };
 
-  const handleApply = async (sectionId) => {
-    if (!window.confirm("¿Deseas postular a esta sección?")) {
+  const handleApply = async (courseId) => {
+    if (!window.confirm("¿Deseas postular a este curso?")) {
       return;
     }
 
@@ -57,7 +57,7 @@ function Apply() {
       setSubmitting(true);
       const response = await apiClient("/postulations/apply/", {
         method: "POST",
-        body: JSON.stringify({ id_curso: sectionId }),
+        body: JSON.stringify({ curso_id: courseId }),
       });
 
       if (!response.ok) {
@@ -78,7 +78,7 @@ function Apply() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl text-gray-600">Cargando secciones disponibles...</p>
+        <p className="text-xl text-gray-600">Cargando cursos disponibles...</p>
       </div>
     );
   }
@@ -91,7 +91,7 @@ function Apply() {
       </h2>
 
       <p className="mt-4 text-gray-600">
-        Revisa y postula a ayudantías abiertas.
+        Revisa y postula a ayudantías abiertas por curso.
       </p>
 
       {error && (
@@ -108,45 +108,33 @@ function Apply() {
         </div>
       )}
 
-      {sections.length === 0 ? (
+      {courses.length === 0 ? (
         <div className="text-center py-8 mt-10">
-          <p className="text-gray-600 text-lg">No hay secciones disponibles en este momento</p>
+          <p className="text-gray-600 text-lg">No hay cursos disponibles en este momento</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
 
-          {sections.map((section) => (
+          {courses.map((course) => (
             <article
-              key={section.id}
+              key={course.id}
               className="bg-white rounded-2xl shadow-md p-6"
             >
 
               <h3 className="text-2xl font-bold text-[#003057]">
-                {section.course_nombre}
+                {course.nombre}
               </h3>
 
               <p className="mt-3 text-gray-700">
-                <strong>Código:</strong> {section.course}
+                <strong>Código:</strong> {course.codigo_curso}
               </p>
 
               <p className="mt-2 text-gray-700">
-                <strong>NRC:</strong> {section.nrc}
-              </p>
-
-              <p className="mt-2 text-gray-700">
-                <strong>Profesor:</strong> {section.profesor_nombre || "No asignado"}
-              </p>
-
-              <p className="mt-2 text-gray-700">
-                <strong>Semestre:</strong> {section.semestre}
-              </p>
-
-              <p className="mt-2 text-gray-700">
-                <strong>Año:</strong> {section.year}
+                <strong>Ayudantía:</strong> Activa
               </p>
 
               <button
-                onClick={() => handleApply(section.id)}
+                onClick={() => handleApply(course.id)}
                 disabled={submitting || !puedePostular()}
                 className="mt-6 bg-[#00AEEF] text-white px-5 py-3 rounded-xl hover:opacity-80 transition disabled:opacity-50"
               >

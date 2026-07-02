@@ -1,14 +1,14 @@
+from django.db.models import Q
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from users.permissions import EsAdminOSoloLectura
+from users.permissions import EsAdminOSoloLectura, EsAdmin, EsAlumno, EsProfesor
 from .models import Course, Section
 from .serializers import CourseSerializer, SectionSerializer
 from external_services.services import get_cursos, sync_profesor
-
-from rest_framework.decorators import action
+from applications.models import Postulation
 
 
 @api_view(['GET'])
@@ -47,6 +47,15 @@ class CourseViewSet(viewsets.ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [EsAdminOSoloLectura]
 
+    def get_permissions(self):
+        if self.action == 'available_for_student':
+            return [EsAlumno()]
+        if self.action == 'my_courses':
+            return [EsProfesor()]
+        if self.action == 'add_section':
+            return [EsAdmin()]
+        return [EsAdminOSoloLectura()]
+
     @action(detail=False, methods=['get'])
     def by_semester(self, request):
         semestre = request.query_params.get('semestre')
@@ -55,6 +64,63 @@ class CourseViewSet(viewsets.ModelViewSet):
         courses = Course.objects.filter(sections__in=sections).distinct()
         serializer = self.get_serializer(courses, many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def available_for_student(self, request):
+        user = request.user
+        perfil = getattr(user, 'alumno_profile', None)
+        if not perfil:
+            return Response({'error': 'Perfil de alumno no encontrado'}, status=400)
+
+        courses = Course.objects.filter(
+            ayudantia_activa=True
+        ).exclude(
+            postulaciones__id_alumno=user
+        )
+
+        resultado = []
+        for course in courses:
+            aprobo = perfil.asignaturas_aprobadas.filter(codigo=course.codigo_curso).exists()
+            if not aprobo:
+                continue
+            resultado.append(course)
+
+        serializer = self.get_serializer(resultado, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def my_courses(self, request):
+        user = request.user
+        courses = Course.objects.filter(
+            Q(sections__profesor=user, metodo_seleccion='INDIVIDUAL') |
+            Q(coordinador=user, metodo_seleccion='COORDINADOR')
+        ).distinct()
+        serializer = self.get_serializer(courses, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def add_section(self, request, pk=None):
+        try:
+            course = self.get_object()
+        except Course.DoesNotExist:
+            return Response({'error': 'Curso no encontrado'}, status=404)
+
+        nrc = request.data.get('nrc')
+        if not nrc:
+            return Response({'error': 'NRC es requerido'}, status=400)
+
+        if Section.objects.filter(nrc=nrc).exists():
+            return Response({'error': f'El NRC {nrc} ya existe'}, status=400)
+
+        section = Section.objects.create(
+            course=course,
+            nrc=nrc,
+            profesor_id=request.data.get('profesor'),
+            semestre=request.data.get('semestre', ''),
+            year=request.data.get('year', 2026),
+        )
+        serializer = SectionSerializer(section)
+        return Response(serializer.data, status=201)
 
 
 class SectionViewSet(viewsets.ModelViewSet):
@@ -98,4 +164,8 @@ def sync_profesor_ucn(request):
     if data is None:
         return Response({'error': 'Profesor no encontrado o sin asignaturas'}, status=status.HTTP_404_NOT_FOUND)
     
-    return Response({'mensaje': 'Secciones sincronizadas', 'profesor': data['nombre']})
+    return Response({
+        'mensaje': 'Secciones sincronizadas',
+        'profesor': data.get('nombre', ''),
+        'courses_summary': data.get('courses_summary', []),
+    })

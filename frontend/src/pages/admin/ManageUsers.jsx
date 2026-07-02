@@ -386,6 +386,20 @@ function ManageUsers() {
           {result.sync_secciones > 0 && (
             <p>Secciones sincronizadas: {result.sync_secciones}</p>
           )}
+          {result.courses_summary && result.courses_summary.length > 0 && (
+            <div className="mt-2">
+              <p className="font-semibold">Cursos sincronizados:</p>
+              <ul className="list-disc list-inside text-sm mt-1">
+                {result.courses_summary.map((item, i) => (
+                  <li key={i}>
+                    {item.codigo} — {item.nombre}
+                    {item.curso_existente ? " (ya existía)" : " (nuevo)"}
+                    {" — NRC "}{item.nrc}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           {result.error_sync && (
             <p className="text-yellow-700 mt-1">Advertencia: {result.error_sync}</p>
           )}
@@ -600,6 +614,20 @@ function ManageUsers() {
             </p>
             {promoverResult.sync_secciones > 0 && (
               <p>Secciones sincronizadas: {promoverResult.sync_secciones}</p>
+            )}
+            {promoverResult.courses_summary && promoverResult.courses_summary.length > 0 && (
+              <div className="mt-1">
+                <p className="font-semibold">Cursos sincronizados:</p>
+                <ul className="list-disc list-inside text-sm mt-1">
+                  {promoverResult.courses_summary.map((item, i) => (
+                    <li key={i}>
+                      {item.codigo} — {item.nombre}
+                      {item.curso_existente ? " (ya existía)" : " (nuevo)"}
+                      {" — NRC "}{item.nrc}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
             {promoverResult.error_sync && (
               <p className="text-yellow-700 mt-1">

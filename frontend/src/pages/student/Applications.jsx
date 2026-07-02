@@ -90,13 +90,17 @@ function Applications() {
 
               <tr>
 
-                <th className="text-left px-6 py-4">
-                  Asignatura
-                </th>
+                  <th className="text-left px-6 py-4">
+                    Asignatura
+                  </th>
 
-                <th className="text-left px-6 py-4">
-                  Sección
-                </th>
+                  <th className="text-left px-6 py-4">
+                    Curso
+                  </th>
+
+                  <th className="text-left px-6 py-4">
+                    NRC Asignado
+                  </th>
 
                 <th className="text-left px-6 py-4">
                   Estado
@@ -123,7 +127,11 @@ function Applications() {
                   </td>
 
                   <td className="px-6 py-4">
-                    {application.seccion_numero}
+                    {application.curso_codigo}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {application.seccion_asignada_nrc || "-"}
                   </td>
 
                   <td className="px-6 py-4">

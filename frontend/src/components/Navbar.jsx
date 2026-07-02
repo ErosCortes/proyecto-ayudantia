@@ -57,14 +57,16 @@ function Navbar() {
             </a>
           </li>
 
-          <li>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition font-semibold"
-            >
-              Cerrar sesion
-            </button>
-          </li>
+          {profileType && (
+            <li>
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg transition font-semibold"
+              >
+                Cerrar sesion
+              </button>
+            </li>
+          )}
         </ul>
 
       </nav>

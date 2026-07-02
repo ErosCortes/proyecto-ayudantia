@@ -99,11 +99,11 @@ print("[OK] Secciones creadas")
 
 # ─── POSTULACIONES ──────────────────────────────────────
 
-Postulation.objects.create(id_alumno=alumnos[0], id_curso=secciones[0], estado='PENDIENTE')
-Postulation.objects.create(id_alumno=alumnos[1], id_curso=secciones[0], estado='ACEPTADA')
-Postulation.objects.create(id_alumno=alumnos[2], id_curso=secciones[1], estado='RECHAZADA')
-Postulation.objects.create(id_alumno=alumnos[3], id_curso=secciones[2], estado='PENDIENTE')
-Postulation.objects.create(id_alumno=alumnos[4], id_curso=secciones[3], estado='PENDIENTE')
+Postulation.objects.create(id_alumno=alumnos[0], curso=curso1, estado='PENDIENTE')
+Postulation.objects.create(id_alumno=alumnos[1], curso=curso1, estado='ACEPTADA')
+Postulation.objects.create(id_alumno=alumnos[2], curso=curso1, estado='RECHAZADA')
+Postulation.objects.create(id_alumno=alumnos[3], curso=curso2, estado='PENDIENTE')
+Postulation.objects.create(id_alumno=alumnos[4], curso=curso3, estado='PENDIENTE')
 print("[OK] Postulaciones creadas")
 
 print("\n[OK] Seed completado.")

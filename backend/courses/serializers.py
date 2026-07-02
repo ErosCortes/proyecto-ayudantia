@@ -21,4 +21,4 @@ class SectionSerializer(serializers.ModelSerializer):
                   'semestre', 'year', 'postulantes_pendientes']
 
     def get_postulantes_pendientes(self, obj):
-        return Postulation.objects.filter(id_curso=obj, estado='PENDIENTE').count()
+        return Postulation.objects.filter(curso=obj.course, estado='PENDIENTE').count()

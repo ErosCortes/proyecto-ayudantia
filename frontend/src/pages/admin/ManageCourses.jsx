@@ -26,6 +26,11 @@ function ManageCourses() {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState(null);
 
+  // Paralelo (sección) a agregar a un curso existente
+  const [paraleloForm, setParaleloForm] = useState({ courseId: null, nrc: "", profesor: "", semestre: "1", year: String(new Date().getFullYear()) });
+  const [addingParalelo, setAddingParalelo] = useState(false);
+  const [paraleloError, setParaleloError] = useState(null);
+
   const [profesores, setProfesores] = useState([]);
 
   // Filtros independientes para cada tabla
@@ -173,7 +178,37 @@ const handleCambiarCoordinador = async (courseId, profesorUserId) => {
   }
 };
 
-const handleToggleAyudantia = async (courseId, activaActual) => {
+  const handleAddParalelo = async () => {
+    if (!paraleloForm.nrc.trim()) {
+      setParaleloError("El NRC es requerido");
+      return;
+    }
+    try {
+      setAddingParalelo(true);
+      setParaleloError(null);
+      const res = await apiClient(`/courses/${paraleloForm.courseId}/add_section/`, {
+        method: "POST",
+        body: JSON.stringify({
+          nrc: paraleloForm.nrc.trim(),
+          profesor: paraleloForm.profesor || null,
+          semestre: paraleloForm.semestre,
+          year: parseInt(paraleloForm.year),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Error al agregar paralelo");
+      }
+      setParaleloForm({ courseId: null, nrc: "", profesor: "", semestre: "1", year: String(new Date().getFullYear()) });
+      alert("Paralelo agregado exitosamente");
+    } catch (err) {
+      setParaleloError(err.message);
+    } finally {
+      setAddingParalelo(false);
+    }
+  };
+
+  const handleToggleAyudantia = async (courseId, activaActual) => {
   const nuevoValor = !activaActual;
   const confirmMsg = nuevoValor
     ? "¿Reactivar la ayudantía de este curso para el semestre?"
@@ -354,6 +389,7 @@ const handleToggleAyudantia = async (courseId, activaActual) => {
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Método</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Coordinador</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Ayudantía</th>
+                  <th className="py-3 px-4 font-bold text-[#003057] text-sm">Paralelos</th>
                   <th className="py-3 px-4 font-bold text-[#003057] text-sm">Acciones</th>
                 </tr>
               </thead>
@@ -423,10 +459,19 @@ const handleToggleAyudantia = async (courseId, activaActual) => {
                     </td>
                     <td className="py-3 px-4">
                       <button
+                        onClick={() => setParaleloForm({ ...paraleloForm, courseId: course.id })}
+                        className="text-[#00AEEF] hover:text-[#0099cc] text-sm font-medium transition"
+                        disabled={!ayudantiaActiva}
+                      >
+                        + Agregar NRC
+                      </button>
+                    </td>
+                    <td className="py-3 px-4">
+                      <button
                       onClick={() => handleDelete(course.id)}
                       className="text-red-600 hover:text-red-800 text-sm font-medium transition"
                    >
-                     Eliminar
+                      Eliminar
                     </button>
                   </td>
                 </tr>
@@ -437,6 +482,83 @@ const handleToggleAyudantia = async (courseId, activaActual) => {
           </div>
         )}
       </div>
+
+      {/* ── FORMULARIO AGREGAR PARALELO ── */}
+      {paraleloForm.courseId && (
+        <div className="bg-yellow-50 border-2 border-[#00AEEF] rounded-xl p-5 mt-6">
+          <h3 className="text-lg font-bold text-[#003057] mb-1">Agregar Paralelo (NRC)</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Curso ID: {paraleloForm.courseId}
+          </p>
+          {paraleloError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-3 py-2 rounded mb-3 text-sm">
+              {paraleloError}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">NRC *</label>
+              <input
+                type="text"
+                value={paraleloForm.nrc}
+                onChange={(e) => setParaleloForm({ ...paraleloForm, nrc: e.target.value })}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+                placeholder="Ej: 12345"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Profesor</label>
+              <select
+                value={paraleloForm.profesor}
+                onChange={(e) => setParaleloForm({ ...paraleloForm, profesor: e.target.value })}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+              >
+                <option value="">Sin asignar</option>
+                {profesores.map((p) => (
+                  <option key={p.id} value={p.user.id}>
+                    {p.user.nombre_completo}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Semestre</label>
+              <select
+                value={paraleloForm.semestre}
+                onChange={(e) => setParaleloForm({ ...paraleloForm, semestre: e.target.value })}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF] bg-white"
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Año</label>
+              <input
+                type="number"
+                value={paraleloForm.year}
+                onChange={(e) => setParaleloForm({ ...paraleloForm, year: e.target.value })}
+                className="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#00AEEF]"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleAddParalelo}
+                disabled={addingParalelo}
+                className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm disabled:opacity-50"
+              >
+                {addingParalelo ? "Guardando..." : "Guardar"}
+              </button>
+              <button
+                onClick={() => { setParaleloForm({ courseId: null, nrc: "", profesor: "", semestre: "1", year: String(new Date().getFullYear()) }); setParaleloError(null); }}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400 transition text-sm"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── CURSOS UCN ── */}
       <div className="bg-white rounded-2xl shadow-md p-6 mt-6">
