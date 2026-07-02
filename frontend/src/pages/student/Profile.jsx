@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import apiClient from "../../config/apiClient";
 
 const ESTADO_STYLES = {
@@ -109,6 +110,15 @@ function Profile() {
                 <span className="text-green-600">No</span>
               )}
             </p>
+          </div>
+
+          <div className="mt-6 pt-4 border-t border-gray-200">
+            <Link
+              to="../change-password"
+              className="inline-block bg-[#003057] text-white px-5 py-2 rounded-lg hover:bg-[#002244] transition-colors font-medium"
+            >
+              Cambiar Contraseña
+            </Link>
           </div>
         </div>
       </div>

@@ -9,6 +9,7 @@ import Apply from "./pages/student/Apply";
 import Applications from "./pages/student/Applications";
 import Profile from "./pages/student/Profile";
 import StudentTutorshipHistory from "./pages/student/TutorshipHistory";
+import ChangePassword from "./components/ChangePassword";
 
 import TeacherDashboard from "./pages/TeacherDashboard";
 import DashboardHomeTeacher from "./pages/teacher/DashboardHomeTeacher";
@@ -66,6 +67,7 @@ function AppRoutes() {
         <Route path="applications" element={<Applications />} />
         <Route path="tutorship-history" element={<StudentTutorshipHistory />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
 
       {/* PROFESOR */}
@@ -81,6 +83,7 @@ function AppRoutes() {
         <Route path="manage" element={<ManageTutorships />} />
         <Route path="applicants" element={<Applicants />} />
         <Route path="profile" element={<TeacherProfile />} />
+        <Route path="change-password" element={<ChangePassword />} />
       </Route>
 
       {/* ADMINISTRADOR */}

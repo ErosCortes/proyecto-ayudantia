@@ -9,7 +9,8 @@ from django.contrib.auth import authenticate
 from .models import User, StudentProfile, TeacherProfile, AdminProfile
 from .serializers import (
     UserSerializer, StudentProfileSerializer, TeacherProfileSerializer,
-    AdminProfileSerializer, RegisterSerializer, LoginSerializer
+    AdminProfileSerializer, RegisterSerializer, LoginSerializer,
+    ChangePasswordSerializer
 )
 from .permissions import EsAdmin
 from external_services.services import get_alumnos, sync_profesor
@@ -27,27 +28,14 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['get'])
-    def profile_type(self, request):
+    @action(detail=False, methods=['post'])
+    def change_password(self, request):
+        serializer = ChangePasswordSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
         user = request.user
-        profile_type = None
-        profile_data = None
-        
-        if hasattr(user, 'alumno_profile'):
-            profile_type = 'student'
-            profile_data = StudentProfileSerializer(user.alumno_profile).data
-        elif hasattr(user, 'profesor_profile'):
-            profile_type = 'teacher'
-            profile_data = TeacherProfileSerializer(user.profesor_profile).data
-        elif hasattr(user, 'admin_profile') or user.is_staff:
-            profile_type = 'admin'
-            profile_data = AdminProfileSerializer(user.admin_profile).data if hasattr(user, 'admin_profile') else {}
-
-        return Response({
-            'profile_type': profile_type,
-            'user': UserSerializer(user).data,
-            'profile': profile_data
-        })
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+        return Response({'message': 'Contraseña cambiada exitosamente'})
     @action(detail=False, methods=['get'])
     def profile_type(self, request):
         user = request.user

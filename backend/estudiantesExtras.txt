@@ -1,0 +1,1011 @@
+{
+        "asignaturasAprobadas": [
+            {
+                "nrc": "22859",
+                "codigo": "ECIN-00360",
+                "nombre": "PR. PROGRAMACIÓN AVANZADA",
+                "periodo": "202520",
+                "nota": 4.8,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21530",
+                "codigo": "DCTE-00004",
+                "nombre": "DIÁLOGO, FE Y CIENCIA",
+                "periodo": "202520",
+                "nota": 5.7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12882",
+                "codigo": "ECIN-00261",
+                "nombre": "PROGRAMACIÓN",
+                "periodo": "202510",
+                "nota": 4.5,
+                "oportunidad": 3,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13963",
+                "codigo": "DCTE-02002",
+                "nombre": "NIVEL 2 DCCU: ARTE",
+                "periodo": "202510",
+                "nota": 7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13347",
+                "codigo": "SSED-02020",
+                "nombre": "COMUNICACIÓN EFECTIVA II",
+                "periodo": "202510",
+                "nota": 5.9,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG001",
+                "codigo": "ECIN-00362",
+                "nombre": "ESTADÍSTICA",
+                "periodo": "202420",
+                "nota": 10,
+                "oportunidad": 1,
+                "inscriptionType": "CONVALIDADA"
+            },
+            {
+                "nrc": "23649",
+                "codigo": "SSED-00102",
+                "nombre": "COMUNICACIÓN EFECTIVA I",
+                "periodo": "202420",
+                "nota": 6.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23526",
+                "codigo": "ECIN-00363",
+                "nombre": "ELECTROTECNIA",
+                "periodo": "202420",
+                "nota": 4.9,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23416",
+                "codigo": "DCCB-00246",
+                "nombre": "ÁLGEBRA II",
+                "periodo": "202420",
+                "nota": 5.4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22637",
+                "codigo": "SSED-00082",
+                "nombre": "LENGUA DE SEÑAS",
+                "periodo": "202420",
+                "nota": 6.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG013",
+                "codigo": "SSED-02184",
+                "nombre": "INGLÉS 2",
+                "periodo": "202410",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG010",
+                "codigo": "SSED-01184",
+                "nombre": "INGLÉS 1",
+                "periodo": "202410",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG007",
+                "codigo": "DCCB-00341",
+                "nombre": "QUÍMICA GENERAL",
+                "periodo": "202410",
+                "nota": 10,
+                "oportunidad": 1,
+                "inscriptionType": "CONVALIDADA"
+            },
+            {
+                "nrc": "SG004",
+                "codigo": "DCCB-00141",
+                "nombre": "CÁLCULO I",
+                "periodo": "202410",
+                "nota": 10,
+                "oportunidad": 1,
+                "inscriptionType": "CONVALIDADA"
+            },
+            {
+                "nrc": "SG001",
+                "codigo": "DCCB-00144",
+                "nombre": "FÍSICA I",
+                "periodo": "202410",
+                "nota": 10,
+                "oportunidad": 1,
+                "inscriptionType": "CONVALIDADA"
+            },
+            {
+                "nrc": "14014",
+                "codigo": "DCCB-00244",
+                "nombre": "FÍSICA II",
+                "periodo": "202410",
+                "nota": 5.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "14006",
+                "codigo": "DCCB-00245",
+                "nombre": "CÁLCULO II",
+                "periodo": "202410",
+                "nota": 5.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13992",
+                "codigo": "DCCB-00142",
+                "nombre": "ÁLGEBRA I",
+                "periodo": "202410",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13696",
+                "codigo": "ECIN-00115",
+                "nombre": "PROY. INTRO. A LA INGENIERÍA",
+                "periodo": "202410",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+	    {
+                "nrc": "22850",
+                "codigo": "ECIN-00508",
+                "nombre": "ARQ. Y ORG. DE COMPUTADORES",
+                "periodo": "202020",
+                "nota": 4.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13581",
+                "codigo": "DCTE-00000",
+                "nombre": "IDENTIDAD, UNIV. Y EQ. DE GÉN.",
+                "periodo": "202410",
+                "nota": 7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            }
+        ],
+        "nombre": "JUAN PÉREZ ",
+        "rut": "12151410-K",
+        "telefono": "+56929216684",
+        "direccion": "Calle Ficticia 9357",
+        "correo": "usuario2@alumnos.ucn.cl",
+        "carrera": {
+            "codigo": "8266",
+            "nombre": "INGENIERIA EN TECNOLOGIAS DE INFORMACION"
+        },
+        "ppa": 5.3,
+        "alertaAcademica": false
+    },
+    {
+        "asignaturasAprobadas": [
+            {
+                "nrc": "21275",
+                "codigo": "ECIN-01000",
+                "nombre": "CAPSTONE PROJECT",
+                "periodo": "202520",
+                "nota": 5,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG001",
+                "codigo": "ACNV-90005",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202520",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23861",
+                "codigo": "ECIN-08606",
+                "nombre": "PRÁCTICA PRE-PROFESIONAL",
+                "periodo": "202420",
+                "nota": 6.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13672",
+                "codigo": "ECIN-00721",
+                "nombre": "INTRODUCCIÓN A DEVOPS",
+                "periodo": "202410",
+                "nota": 4.8,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13670",
+                "codigo": "ECIN-00521",
+                "nombre": "PATRONES DE SOFTWARE",
+                "periodo": "202410",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13585",
+                "codigo": "ECIN-00910",
+                "nombre": "EVALUACIÓN DE PROYECTOS TI",
+                "periodo": "202410",
+                "nota": 6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11274",
+                "codigo": "ECIN-00907",
+                "nombre": "SISTEMAS DE INFORMACIÓN II",
+                "periodo": "202410",
+                "nota": 4.7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG076",
+                "codigo": "DCCB-00505",
+                "nombre": "ELECTROMAGNETISMO",
+                "periodo": "202320",
+                "nota": 5.2,
+                "oportunidad": 3,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG109",
+                "codigo": "UNFE-10001",
+                "nombre": "FORMACIÓN GENERAL ELECTIVA I",
+                "periodo": "202320",
+                "nota": 5.5,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG079",
+                "codigo": "ECIN-00407",
+                "nombre": "ESTRUCTURAS DE DATOS",
+                "periodo": "202320",
+                "nota": 5.6,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG073",
+                "codigo": "ECIN-00336",
+                "nombre": "ESTADÍSTICA",
+                "periodo": "202320",
+                "nota": 4.2,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG052",
+                "codigo": "ECIN-00307",
+                "nombre": "PROGRAMACIÓN ORIENTADA A OBJET",
+                "periodo": "202320",
+                "nota": 4.9,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG049",
+                "codigo": "ECIN-00308",
+                "nombre": "TÉC. Y MET. DE PROG. AVANZADA",
+                "periodo": "202320",
+                "nota": 4.9,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG046",
+                "codigo": "DCCB-00264",
+                "nombre": "QUÍMICA GENERAL",
+                "periodo": "202320",
+                "nota": 4,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG034",
+                "codigo": "DCCB-00266",
+                "nombre": "ÁLGEBRA II",
+                "periodo": "202320",
+                "nota": 5.6,
+                "oportunidad": 2,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG106",
+                "codigo": "UNFE-10001",
+                "nombre": "FORMACIÓN GENERAL ELECTIVA I",
+                "periodo": "202320",
+                "nota": 5.5,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG103",
+                "codigo": "ACNV-90001",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 6.3,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG100",
+                "codigo": "ACNV-90002",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 5.3,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG097",
+                "codigo": "ACNV-80001",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 4.2,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG094",
+                "codigo": "ECIN-00708",
+                "nombre": "PROYECTO INTEGRADOR PLATAFORMA",
+                "periodo": "202320",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG091",
+                "codigo": "ACNV-70001",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG088",
+                "codigo": "ECIN-00618",
+                "nombre": "INT. AL DESARROLLO WEB/MÓVIL",
+                "periodo": "202320",
+                "nota": 4.6,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG085",
+                "codigo": "ACNV-60001",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 6.4,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG082",
+                "codigo": "SSED-00607",
+                "nombre": "EMPRENDIMIENTO",
+                "periodo": "202320",
+                "nota": 6.1,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG058",
+                "codigo": "ECIN-00408",
+                "nombre": "PROYECTO DISEÑO E INNOVACIÓN",
+                "periodo": "202320",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG055",
+                "codigo": "SSED-02020",
+                "nombre": "COMUNICACIÓN EFECTIVA II",
+                "periodo": "202320",
+                "nota": 5.2,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG031",
+                "codigo": "ECIN-00201",
+                "nombre": "PROGRAMACIÓN",
+                "periodo": "202320",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG028",
+                "codigo": "DCCB-00216",
+                "nombre": "MECÁNICA",
+                "periodo": "202320",
+                "nota": 4.4,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG025",
+                "codigo": "DCCB-00265",
+                "nombre": "CÁLCULO II",
+                "periodo": "202320",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG019",
+                "codigo": "SSED-02184",
+                "nombre": "INGLÉS 2",
+                "periodo": "202320",
+                "nota": 4.5,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG016",
+                "codigo": "SSED-01184",
+                "nombre": "INGLÉS 1",
+                "periodo": "202320",
+                "nota": 6,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG010",
+                "codigo": "DCCB-00119",
+                "nombre": "INTRODUCCIÓN A LA FÍSICA",
+                "periodo": "202320",
+                "nota": 4.8,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG007",
+                "codigo": "ECIN-00512",
+                "nombre": "INTRODUCCIÓN A DATA SCIENCE",
+                "periodo": "202320",
+                "nota": 4.8,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG004",
+                "codigo": "ECIN-00513",
+                "nombre": "PROY. INTEGRADOR PROG. AVANZAD",
+                "periodo": "202320",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "SG001",
+                "codigo": "ACNV-50001",
+                "nombre": "FORMACIÓN CONVALIDACIÓN",
+                "periodo": "202320",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "CAMBIO CATALOGO CARRERA"
+            },
+            {
+                "nrc": "23999",
+                "codigo": "ECIN-00619",
+                "nombre": "PROYECTO INTEGRADOR SOFTWARE",
+                "periodo": "202320",
+                "nota": 5.5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23819",
+                "codigo": "ECIN-00808",
+                "nombre": "ARQUITECTURA DE SISTEMAS",
+                "periodo": "202320",
+                "nota": 6.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23664",
+                "codigo": "ECIN-00621",
+                "nombre": "BASES DE DATOS NO RELACIONALES",
+                "periodo": "202320",
+                "nota": 5.7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23461",
+                "codigo": "ECIN-00809",
+                "nombre": "PROYECTO INTEGRADOR GESTIÓN TI",
+                "periodo": "202320",
+                "nota": 7,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21271",
+                "codigo": "ECIN-00805",
+                "nombre": "SISTEMAS DE INFORMACIÓN I",
+                "periodo": "202320",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "10960",
+                "codigo": "ECIN-00608",
+                "nombre": "DISEÑO Y ANÁLISIS DE ALGORITMO",
+                "periodo": "202310",
+                "nota": 4.9,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11503",
+                "codigo": "ECIN-00707",
+                "nombre": "PR. DESARROLLO SOFT. PLATAFORM",
+                "periodo": "202310",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11214",
+                "codigo": "ECIN-00705",
+                "nombre": "GESTIÓN DE PROYECTOS TI",
+                "periodo": "202310",
+                "nota": 5.9,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11213",
+                "codigo": "ECIN-00806",
+                "nombre": "REDES DE COMPUTADORES",
+                "periodo": "202310",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21299",
+                "codigo": "ECIN-00609",
+                "nombre": "LENGUAJES DE PROGRAMACIÓN",
+                "periodo": "202220",
+                "nota": 4.3,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23486",
+                "codigo": "ECIN-00800",
+                "nombre": "ING. Y DESARROLLO SUSTENTABLE",
+                "periodo": "202220",
+                "nota": 6.5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11945",
+                "codigo": "ECIN-00611",
+                "nombre": "PR. PROCES. ANALÍTICO DE DATOS",
+                "periodo": "202210",
+                "nota": 6.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11571",
+                "codigo": "ECIN-00706",
+                "nombre": "SISTEMAS OPERATIVOS",
+                "periodo": "202210",
+                "nota": 6.1,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11464",
+                "codigo": "ECIN-00501",
+                "nombre": "DIBUJO DE INGENIERÍA",
+                "periodo": "202210",
+                "nota": 5.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11287",
+                "codigo": "ECIN-00607",
+                "nombre": "ANÁLISIS DE SEÑALES",
+                "periodo": "202210",
+                "nota": 4.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21192",
+                "codigo": "ECIN-00506",
+                "nombre": "FUNDAMENTOS DE LA COMPUTACIÓN",
+                "periodo": "202120",
+                "nota": 4,
+                "oportunidad": 3,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22446",
+                "codigo": "ECIN-00509",
+                "nombre": "PR. CIENCIAS APLICADAS",
+                "periodo": "202120",
+                "nota": 6.6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22442",
+                "codigo": "SSED-00202",
+                "nombre": "COMUNICACIÓN EFECTIVA II",
+                "periodo": "202120",
+                "nota": 5.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22432",
+                "codigo": "SSED-00001",
+                "nombre": "EMPRENDIMIENTO",
+                "periodo": "202120",
+                "nota": 6.1,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22149",
+                "codigo": "DCTE-00005",
+                "nombre": "ÉTICA PROFESIONAL",
+                "periodo": "202120",
+                "nota": 6.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21598",
+                "codigo": "ECIN-00610",
+                "nombre": "INGENIERÍA DE SOFTWARE",
+                "periodo": "202120",
+                "nota": 4.4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11520",
+                "codigo": "ECIN-00507",
+                "nombre": "BASES DE DATOS",
+                "periodo": "202110",
+                "nota": 4,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11097",
+                "codigo": "ECIN-00400",
+                "nombre": "DINÁMICA",
+                "periodo": "202110",
+                "nota": 6.4,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23024",
+                "codigo": "DCCB-00600",
+                "nombre": "ÓPTICA Y FÍSICA MODERNA",
+                "periodo": "202020",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "21480",
+                "codigo": "ECIN-00510",
+                "nombre": "ELECTROTECNIA",
+                "periodo": "202020",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22850",
+                "codigo": "ECIN-00508",
+                "nombre": "ARQ. Y ORG. DE COMPUTADORES",
+                "periodo": "202020",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13373",
+                "codigo": "DCCB-00500",
+                "nombre": "ELECTROMAGNETISMO",
+                "periodo": "202010",
+                "nota": 5.2,
+                "oportunidad": 3,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11487",
+                "codigo": "ECIN-00300",
+                "nombre": "ESTADÍSTICA",
+                "periodo": "202010",
+                "nota": 4.2,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11477",
+                "codigo": "ECIN-00406",
+                "nombre": "ESTRUCTURA DE DATOS",
+                "periodo": "202010",
+                "nota": 5.6,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11470",
+                "codigo": "ECIN-00600",
+                "nombre": "TERMODINÁMICA",
+                "periodo": "202010",
+                "nota": 4,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11975",
+                "codigo": "ECIN-00404",
+                "nombre": "DISEÑO DE SISTEMAS DIGITALES",
+                "periodo": "201810",
+                "nota": 4.7,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "26005",
+                "codigo": "DCCB-00301",
+                "nombre": "ECUACIONES DIFERENCIALES",
+                "periodo": "201725",
+                "nota": 4.9,
+                "oportunidad": 3,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23462",
+                "codigo": "ECIN-00304",
+                "nombre": "PROGRAMACIÓN AVANZADA",
+                "periodo": "201720",
+                "nota": 4.9,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "24472",
+                "codigo": "SSED-00402",
+                "nombre": "INGLÉS II",
+                "periodo": "201720",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23321",
+                "codigo": "DCTE-00004",
+                "nombre": "DIÁLOGO, FE Y CIENCIA",
+                "periodo": "201720",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "SG001",
+                "codigo": "DCCB-00401",
+                "nombre": "CÁLCULO III",
+                "periodo": "201715",
+                "nota": 4.9,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12043",
+                "codigo": "DCCB-00209",
+                "nombre": "QUÍMICA GENERAL",
+                "periodo": "201710",
+                "nota": 4,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "13125",
+                "codigo": "SSED-00302",
+                "nombre": "INGLÉS I",
+                "periodo": "201710",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12861",
+                "codigo": "ECIN-00305",
+                "nombre": "PR. INTRODUCCIÓN A LA ING. II",
+                "periodo": "201710",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11420",
+                "codigo": "DCTE-00000",
+                "nombre": "IDENTIDAD, UNIV. Y EQ. DE GÉN.",
+                "periodo": "201710",
+                "nota": 4.1,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "25077",
+                "codigo": "DCCB-00208",
+                "nombre": "ÁLGEBRA II",
+                "periodo": "201625",
+                "nota": 5.6,
+                "oportunidad": 2,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "23178",
+                "codigo": "ECIN-00200",
+                "nombre": "PROGRAMACIÓN",
+                "periodo": "201620",
+                "nota": 5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22845",
+                "codigo": "DCTE-00002",
+                "nombre": "DIÁLOGO, FE Y CULTURA",
+                "periodo": "201620",
+                "nota": 5.3,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22771",
+                "codigo": "DCCB-00207",
+                "nombre": "CÁLCULO II",
+                "periodo": "201620",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "22768",
+                "codigo": "DCCB-00206",
+                "nombre": "MECÁNICA",
+                "periodo": "201620",
+                "nota": 4.4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12360",
+                "codigo": "ECIN-00100",
+                "nombre": "PR. INTRO. A LA INGENIERÍA",
+                "periodo": "201610",
+                "nota": 4.1,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12248",
+                "codigo": "SSED-00102",
+                "nombre": "COMUNICACIÓN EFECTIVA I",
+                "periodo": "201610",
+                "nota": 5.9,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "12231",
+                "codigo": "SSED-00022",
+                "nombre": "CULTIVO ORGÁNICO",
+                "periodo": "201610",
+                "nota": 5.5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11953",
+                "codigo": "DCCB-00107",
+                "nombre": "ÁLGEBRA I",
+                "periodo": "201610",
+                "nota": 4,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11949",
+                "codigo": "DCCB-00106",
+                "nombre": "CÁLCULO I",
+                "periodo": "201610",
+                "nota": 5.2,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11944",
+                "codigo": "DCCB-00105",
+                "nombre": "INTRODUCCIÓN A LA FÍSICA",
+                "periodo": "201610",
+                "nota": 4.8,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11864",
+                "codigo": "SSED-00200",
+                "nombre": "NIVELACIÓN INGLÉS B",
+                "periodo": "201610",
+                "nota": 4.5,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            },
+            {
+                "nrc": "11849",
+                "codigo": "SSED-00100",
+                "nombre": "NIVELACIÓN INGLÉS A",
+                "periodo": "201610",
+                "nota": 6,
+                "oportunidad": 1,
+                "inscriptionType": "REGULAR"
+            }
+        ],
+        "nombre": "CAMILA PEREZ",
+        "rut": "23627187-K",
+        "telefono": "+56932730358",
+        "direccion": "Calle Ficticia 8928",
+        "correo": "usuario3@alumnos.ucn.cl",
+        "carrera": {
+            "codigo": "8606",
+            "nombre": "INGENIERIA CIVIL EN COMPUTACION E INFORMATICA"
+        },
+        "ppa": 5,
+        "alertaAcademica": true
+    }
