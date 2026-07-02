@@ -112,14 +112,21 @@ class PostulationViewSet(viewsets.ModelViewSet):
         """
         Postulaciones pendientes que el usuario actual puede revisar.
         Soporta ?orden=ppa | nota_curso | fecha | fecha_desc | nombre | prioridad
+        y ?section_id= para filtrar por sección específica.
         """
         user = request.user
         criterio = request.query_params.get('orden', 'prioridad')
+        section_id = request.query_params.get('section_id')
 
         postulations = Postulation.objects.filter(estado='PENDIENTE').filter(
             Q(id_curso__profesor=user, id_curso__course__metodo_seleccion='INDIVIDUAL') |
             Q(id_curso__course__coordinador=user, id_curso__course__metodo_seleccion='COORDINADOR')
-        ).distinct().ordenar_por(criterio)
+        )
+
+        if section_id:
+            postulations = postulations.filter(id_curso_id=section_id)
+
+        postulations = postulations.distinct().ordenar_por(criterio)
 
         serializer = self.get_serializer(postulations, many=True)
         return Response(serializer.data)

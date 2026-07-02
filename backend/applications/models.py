@@ -90,6 +90,9 @@ class Postulation(models.Model):
             if perfil.ppa < self.PPA_MINIMO:
                 raise ValidationError(f"El PPA mínimo para postular es {self.PPA_MINIMO}.")
 
+            if perfil.alerta_academica:
+                raise ValidationError("No puedes postular porque tienes alerta académica.")
+
             aprobo_el_curso = ApprovedSubject.objects.filter(
                 student=perfil,
                 codigo=curso.codigo_curso,

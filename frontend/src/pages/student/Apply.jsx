@@ -3,25 +3,42 @@ import apiClient from "../../config/apiClient";
 
 function Apply() {
   const [sections, setSections] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  const puedePostular = () => {
+    if (!profile) return true;
+    const ppa = parseFloat(profile.ppa);
+    const ppaValido = !isNaN(ppa) && ppa >= 5;
+    return !profile.alerta_academica && ppaValido;
+  };
+
   useEffect(() => {
-    fetchAvailableSections();
+    fetchData();
   }, []);
 
-  const fetchAvailableSections = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await apiClient("/sections/available/");
+      const [sectionsRes, profileRes] = await Promise.all([
+        apiClient("/sections/available/"),
+        apiClient("/users/profile_type/"),
+      ]);
 
-      if (!response.ok) {
+      if (!sectionsRes.ok) {
         throw new Error("Error al obtener secciones disponibles");
       }
 
-      const data = await response.json();
-      setSections(data);
+      const sectionsData = await sectionsRes.json();
+      setSections(sectionsData);
+
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setProfile(profileData.profile);
+      }
+
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -49,8 +66,7 @@ function Apply() {
       }
 
       alert("Postulación realizada exitosamente");
-      // Recargar la lista
-      fetchAvailableSections();
+      fetchData();
     } catch (err) {
       alert(`Error: ${err.message}`);
       console.error("Error:", err);
@@ -81,6 +97,14 @@ function Apply() {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mt-4 mb-4">
           {error}
+        </div>
+      )}
+
+      {profile && !puedePostular() && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mt-4 mb-4">
+          {profile.alerta_academica
+            ? "No puedes postular a ayudantías porque tienes alerta académica."
+            : "Tu PPA actual no cumple con el mínimo requerido (5.0) para postular a ayudantías."}
         </div>
       )}
 
@@ -123,7 +147,7 @@ function Apply() {
 
               <button
                 onClick={() => handleApply(section.id)}
-                disabled={submitting}
+                disabled={submitting || !puedePostular()}
                 className="mt-6 bg-[#00AEEF] text-white px-5 py-3 rounded-xl hover:opacity-80 transition disabled:opacity-50"
               >
                 {submitting ? "Postulando..." : "Postular"}

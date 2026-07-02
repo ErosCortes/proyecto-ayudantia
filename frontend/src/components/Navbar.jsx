@@ -1,8 +1,8 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
-  const { logout } = useAuth();
+  const { logout, profileType } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -35,20 +35,24 @@ function Navbar() {
         </section>
 
         <ul className="hidden md:flex gap-6 items-center">
-          <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Inicio
-            </a>
-          </li>
+          {profileType && (
+            <li>
+              <Link to={`/${profileType}`} className="hover:text-[#00AEEF]">
+                Inicio
+              </Link>
+            </li>
+          )}
+
+          {profileType && profileType !== "admin" && (
+            <li>
+              <Link to={`/${profileType}/profile`} className="hover:text-[#00AEEF]">
+                Perfil
+              </Link>
+            </li>
+          )}
 
           <li>
-            <a href="#" className="hover:text-[#00AEEF]">
-              Perfil
-            </a>
-          </li>
-
-          <li>
-            <a href="#" className="hover:text-[#00AEEF]">
+            <a href="https://www.ucn.cl/contactanos/" target="_blank" rel="noreferrer" className="hover:text-[#00AEEF]">
               Contacto
             </a>
           </li>

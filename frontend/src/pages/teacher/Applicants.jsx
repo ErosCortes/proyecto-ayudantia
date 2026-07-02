@@ -40,7 +40,6 @@ function HistorialModal({ alumno, onClose }) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[80vh] flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <div>
             <h3 className="text-xl font-bold text-[#003057]">Historial de Ayudantías</h3>
@@ -54,7 +53,6 @@ function HistorialModal({ alumno, onClose }) {
           </button>
         </div>
 
-        {/* Body */}
         <div className="p-6 overflow-y-auto">
           {loading && <p className="text-gray-500 text-center py-8">Cargando historial...</p>}
           {error && <p className="text-red-600 text-center py-8">{error}</p>}
@@ -107,20 +105,49 @@ function HistorialModal({ alumno, onClose }) {
 }
 
 function Applicants() {
+  const [sections, setSections] = useState([]);
+  const [selectedSection, setSelectedSection] = useState(null);
   const [postulations, setPostulations] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingSections, setLoadingSections] = useState(true);
+  const [loadingPostulations, setLoadingPostulations] = useState(false);
   const [error, setError] = useState(null);
   const [modalAlumno, setModalAlumno] = useState(null);
   const [orden, setOrden] = useState("prioridad");
 
   useEffect(() => {
-    fetchPostulations(orden);
-  }, [orden]);
+    fetchSections();
+  }, []);
 
-  const fetchPostulations = async (criterioOrden) => {
+  useEffect(() => {
+    if (selectedSection) {
+      fetchPostulations(selectedSection, orden);
+    } else {
+      setPostulations([]);
+    }
+  }, [selectedSection, orden]);
+
+  const fetchSections = async () => {
     try {
-      setLoading(true);
-      const response = await apiClient(`/postulations/pending/?orden=${criterioOrden}`);
+      setLoadingSections(true);
+      const response = await apiClient("/sections/my_sections/");
+      if (!response.ok) throw new Error("Error al obtener secciones");
+      const data = await response.json();
+      setSections(data);
+      if (data.length > 0) {
+        setSelectedSection(data[0].id);
+      }
+      setError(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoadingSections(false);
+    }
+  };
+
+  const fetchPostulations = async (sectionId, criterioOrden) => {
+    try {
+      setLoadingPostulations(true);
+      const response = await apiClient(`/postulations/pending/?section_id=${sectionId}&orden=${criterioOrden}`);
       if (!response.ok) throw new Error("Error al obtener postulaciones");
       const data = await response.json();
       setPostulations(data);
@@ -128,7 +155,7 @@ function Applicants() {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false);
+      setLoadingPostulations(false);
     }
   };
 
@@ -145,15 +172,15 @@ function Applicants() {
     }
   };
 
-  if (loading) {
+  if (loadingSections) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <p className="text-xl text-gray-600">Cargando postulantes...</p>
+        <p className="text-xl text-gray-600">Cargando secciones...</p>
       </div>
     );
   }
 
-  if (error) {
+  if (error && sections.length === 0) {
     return (
       <section>
         <h2 className="text-4xl font-bold text-[#003057]">Postulantes</h2>
@@ -165,79 +192,111 @@ function Applicants() {
   return (
     <section>
       <h2 className="text-4xl font-bold text-[#003057]">Postulantes</h2>
-      <p className="mt-4 text-gray-600">Revisa y gestiona los estudiantes postulados.</p>
+      <p className="mt-4 text-gray-600">Selecciona una sección para ver sus postulantes.</p>
 
-      {/* Selector de orden */}
-      <div className="mt-6 flex items-center gap-3">
-        <label htmlFor="orden" className="text-gray-700 font-medium text-sm">
-          Ordenar por:
-        </label>
-        <select
-          id="orden"
-          value={orden}
-          onChange={(e) => setOrden(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004b87]"
-        >
-          {OPCIONES_ORDEN.map((op) => (
-            <option key={op.value} value={op.value}>
-              {op.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {postulations.length === 0 ? (
+      {sections.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-md p-6 mt-10 text-center">
-          <p className="text-gray-600 text-lg">No hay postulaciones pendientes.</p>
+          <p className="text-gray-600 text-lg">No tienes secciones asignadas.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto mt-10">
-          <table className="w-full bg-white rounded-2xl shadow-md overflow-hidden">
-            <thead className="bg-[#003057] text-white">
-              <tr>
-                <th className="text-left px-6 py-4">Nombre</th>
-                <th className="text-left px-6 py-4">RUT</th>
-                <th className="text-left px-6 py-4">PPA</th>
-                <th className="text-left px-6 py-4">Asignatura</th>
-                <th className="text-left px-6 py-4">NRC</th>
-                <th className="text-left px-6 py-4">Acción</th>
-              </tr>
-            </thead>
-            <tbody>
-              {postulations.map((p) => (
-                <tr key={p.id} className="border-b hover:bg-gray-50">
-                  <td className="px-6 py-4 font-medium">{p.alumno_nombre}</td>
-                  <td className="px-6 py-4 text-gray-700">{p.alumno_rut}</td>
-                  <td className="px-6 py-4">{p.alumno_ppa ?? "-"}</td>
-                  <td className="px-6 py-4">{p.curso_nombre}</td>
-                  <td className="px-6 py-4 text-gray-700">{p.seccion_nrc}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2 flex-wrap">
-                      <button
-                        onClick={() => setModalAlumno({ id: p.id_alumno, nombre: p.alumno_nombre, rut: p.alumno_rut })}
-                        className="bg-[#004b87] text-white px-3 py-2 rounded-lg hover:bg-[#00AEEF] transition text-sm"
-                      >
-                        Ver historial
-                      </button>
-                      <button
-                        onClick={() => updateStatus(p.id, "ACEPTADA")}
-                        className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm"
-                      >
-                        Aceptar
-                      </button>
-                      <button
-                        onClick={() => updateStatus(p.id, "RECHAZADA")}
-                        className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition text-sm"
-                      >
-                        Rechazar
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+        <>
+          {/* Selector de secciones */}
+          <div className="mt-6 flex flex-wrap gap-3">
+            {sections.map((sec) => (
+              <button
+                key={sec.id}
+                onClick={() => setSelectedSection(sec.id)}
+                className={`px-5 py-3 rounded-xl font-medium text-sm transition ${
+                  selectedSection === sec.id
+                    ? "bg-[#003057] text-white shadow-md"
+                    : "bg-white text-gray-700 border border-gray-300 hover:border-[#003057]"
+                }`}
+              >
+                {sec.course_nombre}
+                <span className="ml-2 text-xs opacity-75">NRC {sec.nrc}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Selector de orden */}
+          <div className="mt-6 flex items-center gap-3">
+            <label htmlFor="orden" className="text-gray-700 font-medium text-sm">
+              Ordenar por:
+            </label>
+            <select
+              id="orden"
+              value={orden}
+              onChange={(e) => setOrden(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004b87]"
+            >
+              {OPCIONES_ORDEN.map((op) => (
+                <option key={op.value} value={op.value}>
+                  {op.label}
+                </option>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </select>
+          </div>
+
+          {loadingPostulations ? (
+            <div className="flex justify-center items-center py-16">
+              <p className="text-xl text-gray-600">Cargando postulantes...</p>
+            </div>
+          ) : postulations.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-md p-6 mt-6 text-center">
+              <p className="text-gray-600 text-lg">
+                No hay postulaciones pendientes para esta sección.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto mt-6">
+              <table className="w-full bg-white rounded-2xl shadow-md overflow-hidden">
+                <thead className="bg-[#003057] text-white">
+                  <tr>
+                    <th className="text-left px-6 py-4">Nombre</th>
+                    <th className="text-left px-6 py-4">RUT</th>
+                    <th className="text-left px-6 py-4">PPA</th>
+                    <th className="text-left px-6 py-4">Asignatura</th>
+                    <th className="text-left px-6 py-4">NRC</th>
+                    <th className="text-left px-6 py-4">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {postulations.map((p) => (
+                    <tr key={p.id} className="border-b hover:bg-gray-50">
+                      <td className="px-6 py-4 font-medium">{p.alumno_nombre}</td>
+                      <td className="px-6 py-4 text-gray-700">{p.alumno_rut}</td>
+                      <td className="px-6 py-4">{p.alumno_ppa ?? "-"}</td>
+                      <td className="px-6 py-4">{p.curso_nombre}</td>
+                      <td className="px-6 py-4 text-gray-700">{p.seccion_nrc}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 flex-wrap">
+                          <button
+                            onClick={() => setModalAlumno({ id: p.id_alumno, nombre: p.alumno_nombre, rut: p.alumno_rut })}
+                            className="bg-[#004b87] text-white px-3 py-2 rounded-lg hover:bg-[#00AEEF] transition text-sm"
+                          >
+                            Ver historial
+                          </button>
+                          <button
+                            onClick={() => updateStatus(p.id, "ACEPTADA")}
+                            className="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition text-sm"
+                          >
+                            Aceptar
+                          </button>
+                          <button
+                            onClick={() => updateStatus(p.id, "RECHAZADA")}
+                            className="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition text-sm"
+                          >
+                            Rechazar
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
       )}
 
       {modalAlumno && (
